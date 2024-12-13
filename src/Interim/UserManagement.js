@@ -5,11 +5,7 @@ import { FaBars, FaEye, FaPen, FaTrash, FaSearch, FaUserCircle, FaUsers,FaUser, 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { FaSignOutAlt } from 'react-icons/fa';
-<<<<<<< HEAD
 import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faTicketAlt, faCheck, faClipboard} from '@fortawesome/free-solid-svg-icons';
-=======
-import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faCog, faTicketAlt, faCheck} from '@fortawesome/free-solid-svg-icons';
->>>>>>> a8f5076 (main)
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { interimDb } from '../components/firebase.config'; // Import the correct firestore instance
 
@@ -154,13 +150,6 @@ const AppBar = styled.div`
   font-weight: bold; /* Apply bold weight */
 `;
 
-<<<<<<< HEAD
-=======
-const DashboardTitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-`;
->>>>>>> a8f5076 (main)
 
 const StatsContainer = styled.div`
   margin-top: 25px;
@@ -357,49 +346,6 @@ const FormContainer = styled.div`
   }
 `;
 
-<<<<<<< HEAD
-=======
-const ToggleSwitch = styled.label`
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: relative;
-    width: 34px;
-    height: 20px;
-    background-color: #ccc;
-    border-radius: 50px;
-    transition: background-color 0.3s;
-  }
-
-  .slider:before {
-    content: "";
-    position: absolute;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background-color: white;
-    transition: transform 0.3s;
-    transform: translateX(2px);
-  }
-
-  input:checked + .slider {
-    background-color: #4caf50;
-  }
-
-  input:checked + .slider:before {
-    transform: translateX(14px);
-  }
-`;
-
->>>>>>> a8f5076 (main)
 const SearchBarContainer = styled.div`
   display: flex;
   align-items: center;
@@ -663,15 +609,12 @@ const handleLogout = () => {
       <span>List of Vendors</span>
     </SidebarItem>
   </Link>
-<<<<<<< HEAD
   <Link to="/stalls" style={{ textDecoration: 'none' }}>
   <SidebarItem isSidebarOpen={isSidebarOpen}>
     <FontAwesomeIcon icon={faClipboard} className="icon" />
     <span>List of Stalls</span>
   </SidebarItem>
 </Link>
-=======
->>>>>>> a8f5076 (main)
 
   <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
     <FontAwesomeIcon icon={faUser} className="icon" />
@@ -699,11 +642,7 @@ const handleLogout = () => {
     </ul>
   )}
 
-<<<<<<< HEAD
   <Link to="/viewunit" style={{ textDecoration: 'none' }}>
-=======
-  <Link to="/Addunit" style={{ textDecoration: 'none' }}>
->>>>>>> a8f5076 (main)
     <SidebarItem isSidebarOpen={isSidebarOpen}>
       <FontAwesomeIcon icon={faPlus} className="icon" />
       <span>Add New Unit</span>
@@ -746,7 +685,6 @@ const handleLogout = () => {
           </SidebarItem>
         </li>
       </Link>
-<<<<<<< HEAD
       <Link to="/View" style={{ textDecoration: 'none' }}>
         <li>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
@@ -755,8 +693,6 @@ const handleLogout = () => {
           </SidebarItem>
         </li>
       </Link>
-=======
->>>>>>> a8f5076 (main)
       <Link to="/addcollector" style={{ textDecoration: 'none' }}>
         <li>
           <SidebarItem isSidebarOpen={isSidebarOpen}>

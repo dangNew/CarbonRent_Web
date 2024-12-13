@@ -1,26 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-<<<<<<< HEAD
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './Interim/AuthContext'; // Ensure the path is correct
 import ProtectedRoute from './Interim/ProtectedRoute'; // Ensure the path is correct
-=======
->>>>>>> a8f5076 (main)
 
 import ListOfStallholders from './Collector/ListOfStallholders';
 import ViewPayment from './Collector/ViewPayment';
-import SignUp from './Interim/Signup'; 
+import SignUp from './Interim/Signup';
 import Login from './Interim/Login';
 import Dashboard from './Interim/Dashboard';
-import ListOfVendors from './Interim/ListOfVendors'; 
+import ListOfVendors from './Interim/ListOfVendors';
 import AddUnit from './Interim/AddUnit';
 import UserManagement from './Interim/UserManagement';
-import AddNewUser from './Interim/AddNewUser'; 
-<<<<<<< HEAD
+import AddNewUser from './Interim/AddNewUser';
 import LoginCTO from './CTO/LoginCTO';
-=======
-import LoginCTO from './CTO/LoginCTO'; // Correct import
-import DashboardNew from './NewInt/dashboard';
->>>>>>> a8f5076 (main)
 import Modal from './Interim/Modal';
 import Profile from './Interim/Profile';
 import UserEdit from './Interim/UserEdit';
@@ -30,72 +22,48 @@ import TicketEdit from './Interim/TicketEdit';
 import AssignCollector from './Interim/AssignCollector';
 import AddCollector from './Interim/AddCollector';
 import NewTicket from './Interim/NewTicket';
-<<<<<<< HEAD
-import ViewCollector from './Interim/ViewCollector';
-import Viewunit from './Interim/viewunit';
 
-
-function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-
-          {/* Protected Routes */}
-          <Route path="/stallholders" element={<ProtectedRoute><ListOfStallholders /></ProtectedRoute>} />
-          <Route path="/view-payment/:id" element={<ProtectedRoute><ViewPayment /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-          <Route path="/list" element={<ProtectedRoute element={<ListOfVendors
-            />} />} />
-          <Route path="/Addunit" element={<ProtectedRoute element={<AddUnit
-            />} />} />
-          <Route path="/userManagement" element={<ProtectedRoute element={<UserManagement
-            />} />} />
-          <Route path="/newuser" element={<ProtectedRoute element={<AddNewUser
-            />} />} />
-          <Route path="/modal"  element={<ProtectedRoute element={<Modal
-            />} />} />
-          <Route path="/profile"  element={<ProtectedRoute element={<Profile
-            />} />} />
-          <Route path="/edit/:id"  element={<ProtectedRoute element={<UserEdit
-            />} />} />
-          <Route path="/contract"  element={<ProtectedRoute element={<ContractManagement
-            />} />} />
-          <Route path="/ticket"  element={<ProtectedRoute element={<Ticket
-            />} />} />
-          <Route path="/ticketEdit/:id"  element={<ProtectedRoute element={<TicketEdit
-            />} />} />
-          <Route path="/assign"  element={<ProtectedRoute element={<AssignCollector
-            />} />} />
-          <Route path="/addcollector" element={<ProtectedRoute element={<AddCollector
-            />} />} />
-          <Route path="/newticket"  element={<ProtectedRoute element={<NewTicket
-            />} />} />
-          <Route path="/View"  element={<ProtectedRoute element={<ViewCollector
-            />} />} />
-          <Route path="/viewunit"  element={<ProtectedRoute element={<Viewunit
-            />} />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-=======
-import Payroll from './payroll/payroll';
-import Quiz from './quiz';
 import SideNav from './OIC/side_nav';
 import OICDashboard from './OIC/oic_dashboard';
-import ListOfStalls from './OIC/ListOfStalls'; 
-import OICListOfVendors from './OIC/OICListOfVendors'; 
+import ListOfStalls from './OIC/ListOfStalls';
+import OICListOfVendors from './OIC/OICListOfVendors';
 import AddNewStall from './OIC/AddNewStall'; // New import
 import VendorVerification from './OIC/VendorVerification'; // New import
 import VendorReallocation from './OIC/VendorReallocation'; // New import
 import DeclinedVendors from './OIC/DeclinedVendors'; // New import
 import EditVendors from './OIC/EditVendors';
 import EditVerification from './OIC/EditVerification';
-// import Violations from './OIC/Violations'; // New import
-// import Announcement from './OIC/Announcement'; // New import
-// import Settings from './OIC/Settings'; // New import
+import BillingConfiguration from './OIC/BillingConfiguration';
+import EditStall from './OIC/EditStall';
+import Occupied from './OIC/OccupiedStalls';
+import Announcement from './OIC/Announcement';
+import CompromiseRequests from './OIC/CompromiseRequests';
+import AvailableStalls from './OIC/AvailableStalls';
+import ProfileOIC from './OIC/Profile_OIC';
+import Violations from './OIC/Violations';
+import ViolationDetails from './OIC/ViolationsDetails';
+import ViewVendor from './OIC/ViewVendor';
+import ViolationReports from './OIC/ViolationReportsPage';
+
+
+
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import SideHead from './CTO/Sidebar';
+import './App.css';
+import CTODashboard from './CTO/Dashboard';
+import Violators from './CTO/Violators';
+import Transactions from './CTO/Transactions';
+import CollectorList from './CTO/CollectorList';
+import Appraisals from './CTO/Appraisal';
+import AmbulantHistory from './CTO/AmbulantHistory';
+import HistoryApprais from './CTO/HistoryApprais';
+import ListsOfAmbulant from './CTO/ListOfAmbulant';
+import StallHolderPayment from './CTO/StallHolderPayment';
+import CTOProfile from './CTO/Profile_';
+import TransactionDetails from './CTO/Transactions';
+import AppraisalCollects from './CTO/AppraisalCollect';
+import ViolationReportss from './CTO/ViolationReports';
+import MarketViolation from './CTO/MarketViolation';
 
 function App() {
   return (
@@ -121,31 +89,120 @@ function App() {
         <Route path="/assign" element={<AssignCollector />} />
         <Route path="/addcollector" element={<AddCollector />} />
         <Route path="/newticket" element={<NewTicket />} />
-        <Route path="/payroll" element={<Payroll />} />
-        <Route path="/quiz" element={<Quiz />} />
-        
+      
+
         {/* OIC Routes */}
-        <Route path="/oic_dashboard" element={<OICDashboard />} />
-        <Route path="/vendors" element={<OICListOfVendors />} />
-        <Route path="/vendor-verification" element={<VendorVerification />} />
-        <Route path="/vendor-reallocation" element={<VendorReallocation />} />
-        <Route path="/declined-vendors" element={<DeclinedVendors />} />
-        <Route path="/stalls" element={<ListOfStalls />} />
-        <Route path="/add-stall" element={<AddNewStall />} />
-        <Route path="/edit-vendors/:Id" element={<EditVendors />} />
-        <Route path="/edit-verification/:vendorId" element={<EditVerification />} />
+        <Route
+          path="/oic_dashboard"
+          element={<ProtectedRoute element={<OICDashboard />} />}
+        />
+        <Route
+          path="/vendors"
+          element={<ProtectedRoute element={<OICListOfVendors />} />}
+        />
+        <Route
+          path="/vendor-verification"
+          element={<ProtectedRoute element={<VendorVerification />} />}
+        />
+        <Route
+          path="/vendor-reallocation"
+          element={<ProtectedRoute element={<VendorReallocation />} />}
+        />
+        <Route
+          path="/declined-vendors"
+          element={<ProtectedRoute element={<DeclinedVendors />} />}
+        />
+        <Route
+          path="/stalls"
+          element={<ProtectedRoute element={<ListOfStalls />} />}
+        />
+        <Route
+          path="/addnew_stall"
+          element={<ProtectedRoute element={<AddNewStall />} />}
+        />
+        <Route
+          path="/edit-vendors/:Id"
+          element={<ProtectedRoute element={<EditVendors />} />}
+        />
+        <Route
+          path="/edit-verification/:vendorId"
+          element={<ProtectedRoute element={<EditVerification />} />}
+        />
+        <Route
+          path="/billing-config"
+          element={<ProtectedRoute element={<BillingConfiguration />} />}
+        />
+        <Route
+          path="/editstall/:id"
+          element={<ProtectedRoute element={<EditStall />} />}
+        />
+        <Route
+          path="/occupied/:id"
+          element={<ProtectedRoute element={<Occupied />} />}
+        />
+        <Route
+          path="/announcement"
+          element={<ProtectedRoute element={<Announcement />} />}
+        />
+        <Route
+          path="/compromise"
+          element={<ProtectedRoute element={<CompromiseRequests />} />}
+        />
 
+        <Route
+          path="/available"
+          element={<ProtectedRoute element={<AvailableStalls />} />}
+        />
 
+        <Route
+          path="/profileoic"
+          element={<ProtectedRoute element={<ProfileOIC />} />}
+        />
 
-        {/* <Route path="/violations" element={<Violations />} />
-        <Route path="/announcement" element={<Announcement />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/logout" element={<Logout />} />  */}
+        <Route
+          path="/violations"
+          element={<ProtectedRoute element={<Violations />} />}
+        />
+
+        <Route
+          path="/violation-reports"
+          element={<ProtectedRoute element={<ViolationReports />} />}
+        />
+
+        <Route
+          path="/view-vendor/:id"
+          element={<ProtectedRoute element={<ViewVendor />} />}
+        />
+
+        <Route
+          path="/violation-details/:vendorId"
+          element={<ProtectedRoute element={<ViolationDetails />} />}
+        />
 
         <Route path="/side_nav" element={<SideNav />} />
+
+
+
+        <Route path="/listViolators" element={<ProtectedRoute><SideHead><Violators /></SideHead></ProtectedRoute>} />
+          <Route path="/stallHistory" element={<ProtectedRoute><SideHead><Transactions /></SideHead></ProtectedRoute>} />
+          <Route path="/stallholder-payment" element={<ProtectedRoute><SideHead><StallHolderPayment /></SideHead></ProtectedRoute>} />
+          <Route path="/collector" element={<ProtectedRoute><SideHead><CollectorList /></SideHead></ProtectedRoute>} />
+          <Route path="/ambulantHistory" element={<ProtectedRoute><SideHead><AmbulantHistory /></SideHead></ProtectedRoute>} />
+          <Route path="/ambulantHistory" element={<ProtectedRoute><SideHead><ViolationReportss /></SideHead></ProtectedRoute>} />
+          <Route path="/historyAppraisal" element={<ProtectedRoute><SideHead><HistoryApprais /></SideHead></ProtectedRoute>} />
+          <Route path="/collector/:collectorName" element={<ProtectedRoute><SideHead><Appraisals /></SideHead></ProtectedRoute>} />
+          <Route path="/ambulant-collector/:collector/:location/:zone" element={<ProtectedRoute><SideHead><ListsOfAmbulant /></SideHead></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><SideHead><CTOProfile /></SideHead></ProtectedRoute>} />
+          <Route path="/transaction-details/:date" element={<ProtectedRoute><SideHead><TransactionDetails /></SideHead></ProtectedRoute>} />
+          <Route path="/appraisalCollects" element={<ProtectedRoute><SideHead><AppraisalCollects /></SideHead></ProtectedRoute>} /> {/* New route for AmbuCollects */}
+          <Route path="/market-violation" element={<ProtectedRoute><SideHead><MarketViolation /></SideHead></ProtectedRoute>} /> {/* New route for AmbuCollects */}
+          <Route path="/dashboard" element={<ProtectedRoute><SideHead><CTODashboard /></SideHead></ProtectedRoute>} /> {/* New route for AmbuCollects */}
+
+
+        <Route path="*" element={<Navigate to="/login" />} />
+        
       </Routes>
     </Router>
->>>>>>> a8f5076 (main)
   );
 }
 

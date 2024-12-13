@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FaBars } from 'react-icons/fa';
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
-import { getDoc, doc, updateDoc } from 'firebase/firestore';
-import { stallholderDb, interimAuth, interimDb } from '../components/firebase.config';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
+import { getDoc, doc, updateDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { rentmobileDb } from '../components/firebase.config';
 import SideNav from './side_nav';
 
 const DashboardContainer = styled.div`
@@ -45,11 +46,23 @@ const ToggleButton = styled.div`
 `;
 
 const VendorDetailsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
   margin-top: 20px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #fff;
+`;
+
+const LeftContainer = styled.div`
+  width: 60%;
+`;
+
+const RightContainer = styled.div`
+  width: 35%;
+  border-left: 1px solid #ccc;
+  padding-left: 20px;
 `;
 
 const FieldGroup = styled.div`
@@ -63,10 +76,11 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 90%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  ${({ disabled }) => disabled && 'background-color: #f0f0f0; cursor: not-allowed;'}
 `;
 
 const ButtonGroup = styled.div`
@@ -81,8 +95,9 @@ const SaveButton = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   margin-right: 10px;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
 const BackButton = styled.button`
@@ -98,15 +113,14 @@ const BackButton = styled.button`
 const ImagePreview = styled.img`
   width: 100px;
   height: 100px;
-  border-radius: 50%;
   object-fit: cover;
   margin-top: 10px;
+  cursor: pointer;
 `;
 
 const PlaceholderAvatar = styled.div`
   width: 100px;
   height: 100px;
-  border-radius: 50%;
   background-color: #ccc;
   display: flex;
   align-items: center;
@@ -130,6 +144,34 @@ const TimelineItem = styled.div`
   border-radius: 4px;
 `;
 
+const DocumentContainer = styled.div`
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+`;
+
+const DocumentItem = styled.div`
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const DocumentButton = styled.button`
+  background-color: ${({ approve }) => (approve ? '#188423' : '#cc0000')};
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+`;
+
 // Modal Styles
 const ModalOverlay = styled.div`
   position: fixed;
@@ -148,7 +190,7 @@ const ModalContainer = styled.div`
   background: white;
   border-radius: 8px;
   padding: 20px;
-  width: 300px;
+  width: 500px;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
@@ -163,14 +205,115 @@ const ModalButton = styled.button`
   margin-top: 10px;
 `;
 
+const ImageModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ImageModalContainer = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 50%; // Adjusted to 50% of the viewport width
+  max-height: 50%; // Adjusted to 50% of the viewport height
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ImageModal = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+`;
+
+const FormContainer = styled.div`
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin-bottom: 1rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    th {
+      background-color: #e9ecef;
+    }
+
+    // Striped rows
+    tr:nth-child(even) {
+      background-color: #f2f2f2; // Light gray for even rows
+    }
+
+    tr:nth-child(odd) {
+      background-color: #ffffff; // White for odd rows
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px; /* Space between the buttons */
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #0056b3; /* Darken on hover */
+      }
+
+      .icon {
+        font-size: 24px; /* Increase icon size */
+        color: black;
+      }
+    }
+  }
+`;
+
 const EditVendors = () => {
   const { Id } = useParams();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [declineMessage, setDeclineMessage] = useState('');
+  const [isBillingCycleEditable, setIsBillingCycleEditable] = useState(true);
+  const [documents, setDocuments] = useState([]);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [declineReason, setDeclineReason] = useState('');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -178,9 +321,10 @@ const EditVendors = () => {
 
   useEffect(() => {
     const fetchVendorData = async () => {
-      const vendorDoc = await getDoc(doc(stallholderDb, 'approvedVendors', Id));
+      const vendorDoc = await getDoc(doc(rentmobileDb, 'approvedVendors', Id));
       if (vendorDoc.exists()) {
         setVendor(vendorDoc.data());
+        setDocuments(vendorDoc.data().Documents || []);
       } else {
         console.log('No such vendor!');
       }
@@ -191,39 +335,195 @@ const EditVendors = () => {
 
   useEffect(() => {
     const fetchLoggedInUser = async () => {
-      const user = interimAuth.currentUser;
-      if (user) {
-        const userDoc = await getDoc(doc(interimDb, 'users', user.uid));
-        if (userDoc.exists()) {
-          setLoggedInUser(userDoc.data());
-        }
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData) {
+        setLoggedInUser(userData);
       }
     };
 
     fetchLoggedInUser();
   }, []);
 
+  useEffect(() => {
+    const fetchBillingConfig = async () => {
+      const billingConfigCollection = collection(rentmobileDb, 'billingconfig');
+      const q = query(billingConfigCollection, where('title', '==', 'RateperMeter'));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        setVendor((prevVendor) => ({
+          ...prevVendor,
+          stallInfo: {
+            ...prevVendor.stallInfo,
+            ratePerMeter: doc.data().value1,
+          },
+        }));
+      });
+    };
+
+    fetchBillingConfig();
+  }, []);
+
+  useEffect(() => {
+    const checkBillingCycleEditable = async () => {
+      const stallPaymentCollection = collection(rentmobileDb, 'stall_payment');
+      const q = query(stallPaymentCollection, where('vendorId', '==', Id), where('status', '==', 'Overdue'));
+      const querySnapshot = await getDocs(q);
+      setIsBillingCycleEditable(querySnapshot.empty);
+    };
+
+    checkBillingCycleEditable();
+  }, [Id]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(rentmobileDb, 'approvedVendors', Id), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        setVendor(docSnapshot.data());
+        setDocuments(docSnapshot.data().Documents || []);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [Id]);
+
   const handleSave = async () => {
     try {
-      // Update the vendor document in Firestore
-      await updateDoc(doc(stallholderDb, 'approvedVendors', Id), vendor);
+      await updateDoc(doc(rentmobileDb, 'approvedVendors', Id), vendor);
       setSuccessMessage('Vendor details updated successfully!');
-      setShowModal(true); // Show the modal on success
+      setShowModal(true);
+      setIsEditing(false); // Revert to display mode
     } catch (error) {
       console.error('Error updating vendor:', error);
       setSuccessMessage('Error updating vendor details. Please try again.');
-      setShowModal(true); // Show the modal on error
+      setShowModal(true);
     }
   };
 
   const handleModalClose = () => {
-    setShowModal(false); // Close the modal
+    setShowModal(false);
   };
 
-  // Handle back navigation
-  const handleBack = () => {
-    navigate(-1); // Go back to the previous page
+  const handleImageClick = (url) => {
+    setImageUrl(url);
+    setShowImageModal(true);
   };
+
+  const handleImageModalClose = () => {
+    setShowImageModal(false);
+  };
+
+  const handleInputChange = (field, value) => {
+    setVendor((prevVendor) => {
+      const updatedVendor = { ...prevVendor, [field]: value };
+      setIsEditing(JSON.stringify(updatedVendor) !== JSON.stringify(prevVendor));
+      return updatedVendor;
+    });
+  };
+
+  const handleStallInfoChange = (field, value) => {
+    setVendor((prevVendor) => {
+      const updatedVendor = {
+        ...prevVendor,
+        stallInfo: { ...prevVendor.stallInfo, [field]: value },
+      };
+      setIsEditing(JSON.stringify(updatedVendor) !== JSON.stringify(prevVendor));
+      return updatedVendor;
+    });
+  };
+
+  const handleDocumentAction = async (step, docIndex, action) => {
+    if (action === 'decline') {
+      setShowDeclineModal(true);
+      setDeclineMessage({ step, docIndex });
+    } else if (action === 'approve') {
+      try {
+        const updatedDocuments = documents.map((doc) =>
+          doc.step === step && docIndex === documents.filter((d) => d.step === step).indexOf(doc)
+            ? { ...doc, status: 'Approved' }
+            : doc
+        );
+        await updateDoc(doc(rentmobileDb, 'approvedVendors', Id), {
+          Documents: updatedDocuments,
+        });
+        setDocuments(updatedDocuments);
+        setSuccessMessage('Document approved successfully!');
+        setShowModal(true);
+      } catch (error) {
+        console.error('Error approving document:', error);
+        setSuccessMessage('Error approving document. Please try again.');
+        setShowModal(true);
+      }
+    }
+  };
+
+  const handleDeclineSubmit = async () => {
+    try {
+      const { step, docIndex } = declineMessage;
+      const updatedDocuments = documents.map((doc) =>
+        doc.step === step && docIndex === documents.filter((d) => d.step === step).indexOf(doc)
+          ? { ...doc, status: 'Declined', message: declineReason }
+          : doc
+      );
+      await updateDoc(doc(rentmobileDb, 'approvedVendors', Id), {
+        Documents: updatedDocuments,
+      });
+      setDocuments(updatedDocuments);
+      setSuccessMessage('Document declined successfully!');
+      setShowModal(true);
+      setShowDeclineModal(false);
+    } catch (error) {
+      console.error('Error declining document:', error);
+      setSuccessMessage('Error declining document. Please try again.');
+      setShowModal(true);
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const getFileIcon = (fileExtension) => {
+    switch (fileExtension.toLowerCase()) {
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+      case 'webp':
+        return '📸';
+      case 'pdf':
+        return '📄';
+      case 'doc':
+      case 'docx':
+        return '📄';
+      case 'html':
+        return '🌐';
+      case 'odt':
+        return '📄';
+      case 'xls':
+      case 'xlsx':
+        return '📊';
+      case 'txt':
+        return '📝';
+      default:
+        return '📁';
+    }
+  };
+
+  const getFileNameFromUrl = (url) => {
+    const urlParts = url.split('/');
+    return urlParts[urlParts.length - 1].split('?')[0];
+  };
+
+  const documentSteps = [
+    { step: 1, label: 'Original Contract Lease' },
+    { step: 2, label: 'Business Permit' },
+    { step: 3, label: 'Proof of No Delinquency' },
+    { step: 4, label: 'Proof of No Violations' },
+    { step: 5, label: 'Market Certification' },
+  ];
 
   return (
     <DashboardContainer>
@@ -234,103 +534,242 @@ const EditVendors = () => {
       <MainContent isSidebarOpen={isSidebarOpen}>
         <AppBar>
           <div>Edit Vendor Details</div>
-          <BackButton onClick={handleBack}>Back</BackButton> {/* Back Button */}
+          <Button onClick={() => navigate(-1)} sx={{ color: 'white' }}>
+            Back
+          </Button>
         </AppBar>
-        {vendor && (
-          <VendorDetailsContainer>
-            <FieldGroup>
-              <Label>Profile Image</Label>
-              {vendor.profileImageUrls && vendor.profileImageUrls.length > 0 ? (
-                <ImagePreview
-                  src={vendor.profileImageUrls[0]} // Profile image URL
-                  alt="Profile"
-                />
-              ) : (
-                <PlaceholderAvatar>
-                  <span role="img" aria-label="user">👤</span>
-                </PlaceholderAvatar>
-              )}
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Email</Label>
-              <Input type="email" value={vendor.email} onChange={(e) => setVendor({ ...vendor, email: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>First Name</Label>
-              <Input type="text" value={vendor.firstName} onChange={(e) => setVendor({ ...vendor, firstName: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Middle Name</Label>
-              <Input type="text" value={vendor.middleName} onChange={(e) => setVendor({ ...vendor, middleName: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Last Name</Label>
-              <Input type="text" value={vendor.lastName} onChange={(e) => setVendor({ ...vendor, lastName: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Contact Number</Label>
-              <Input type="text" value={vendor.contactNumber} onChange={(e) => setVendor({ ...vendor, contactNumber: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Barangay</Label>
-              <Input type="text" value={vendor.barangay} onChange={(e) => setVendor({ ...vendor, barangay: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>City</Label>
-              <Input type="text" value={vendor.city} onChange={(e) => setVendor({ ...vendor, city: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Stall Location</Label>
-              <Input type="text" value={vendor.stallInfo.location} onChange={(e) => setVendor({ ...vendor, stallInfo: { ...vendor.stallInfo, location: e.target.value } })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Stall Number</Label>
-              <Input type="text" value={vendor.stallInfo.stallNumber} onChange={(e) => setVendor({ ...vendor, stallInfo: { ...vendor.stallInfo, stallNumber: e.target.value } })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Rate Per Meter</Label>
-              <Input type="text" value={vendor.stallInfo.ratePerMeter} onChange={(e) => setVendor({ ...vendor, stallInfo: { ...vendor.stallInfo, ratePerMeter: e.target.value } })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label>Stall Size</Label>
-              <Input type="text" value={vendor.stallInfo.stallSize} onChange={(e) => setVendor({ ...vendor, stallInfo: { ...vendor.stallInfo, stallSize: e.target.value } })} />
-            </FieldGroup>
-            <ButtonGroup>
-              <SaveButton onClick={handleSave}>Save Changes</SaveButton>
-            </ButtonGroup>
-          </VendorDetailsContainer>
-        )}
-        {/* Timeline Section */}
-        {vendor && vendor.timeline && vendor.timeline.length > 0 ? (
-          <TimelineContainer>
-            <h3>Timeline</h3>
-            {vendor.timeline.map((item, index) => (
-              <TimelineItem key={index}>
-                <p><strong>Status:</strong> {item.status}</p>
-                <p><strong>Message:</strong> {item.message}</p>
-                <p><strong>Email:</strong> {item.email}</p>
-                <p><strong>Timestamp:</strong> {item.timestamp.toDate().toLocaleString()}</p>
-                {item.uploadedImageUrl && (
-                  <ImagePreview src={item.uploadedImageUrl} alt={`Timeline upload ${index + 1}`} />
-                )}
-              </TimelineItem>
-            ))}
-          </TimelineContainer>
-        ) : (
-          <TimelineContainer>
-            <h3>Timeline</h3>
-            <p>No timeline data available.</p>
-          </TimelineContainer>
-        )}
+        <FormContainer>
+          {vendor && (
+            <VendorDetailsContainer>
+              <LeftContainer>
+                <FieldGroup>
+                  <Label>Profile Image</Label>
+                  {vendor.profileImageUrls && vendor.profileImageUrls.length > 0 ? (
+                    <ImagePreview
+                      src={vendor.profileImageUrls[0]}
+                      alt="Profile"
+                      onClick={() => handleImageClick(vendor.profileImageUrls[0])}
+                    />
+                  ) : (
+                    <PlaceholderAvatar>
+                      <span role="img" aria-label="user">👤</span>
+                    </PlaceholderAvatar>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Email</Label>
+                  {isEditing ? (
+                    <Input type="email" value={vendor.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+                  ) : (
+                    <p>{vendor.email}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>First Name</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.firstName} onChange={(e) => handleInputChange('firstName', e.target.value)} />
+                  ) : (
+                    <p>{vendor.firstName}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Middle Name</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.middleName} onChange={(e) => handleInputChange('middleName', e.target.value)} />
+                  ) : (
+                    <p>{vendor.middleName}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Last Name</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.lastName} onChange={(e) => handleInputChange('lastName', e.target.value)} />
+                  ) : (
+                    <p>{vendor.lastName}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Contact Number</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.contactNumber} onChange={(e) => handleInputChange('contactNumber', e.target.value)} />
+                  ) : (
+                    <p>{vendor.contactNumber}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Barangay</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.barangay} onChange={(e) => handleInputChange('barangay', e.target.value)} />
+                  ) : (
+                    <p>{vendor.barangay}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>City</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.city} onChange={(e) => handleInputChange('city', e.target.value)} />
+                  ) : (
+                    <p>{vendor.city}</p>
+                  )}
+                </FieldGroup>
+              </LeftContainer>
+              <RightContainer>
+                <FieldGroup>
+                  <Label>Stall Location</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.stallInfo.location} onChange={(e) => handleStallInfoChange('location', e.target.value)} />
+                  ) : (
+                    <p>{vendor.stallInfo.location}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Stall Number</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.stallInfo.stallNumber} onChange={(e) => handleStallInfoChange('stallNumber', e.target.value)} />
+                  ) : (
+                    <p>{vendor.stallInfo.stallNumber}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Rate Per Meter</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.stallInfo.ratePerMeter} onChange={(e) => handleStallInfoChange('ratePerMeter', e.target.value)} />
+                  ) : (
+                    <p>{vendor.stallInfo.ratePerMeter}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Stall Size</Label>
+                  {isEditing ? (
+                    <Input type="text" value={vendor.stallInfo.stallSize} onChange={(e) => handleStallInfoChange('stallSize', e.target.value)} />
+                  ) : (
+                    <p>{vendor.stallInfo.stallSize}</p>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>Billing Cycle</Label>
+                  {isEditing && isBillingCycleEditable ? (
+                    <Input type="text" value={vendor.billingCycle} onChange={(e) => handleInputChange('billingCycle', e.target.value)} />
+                  ) : (
+                    <p>{vendor.billingCycle}</p>
+                  )}
+                </FieldGroup>
+              </RightContainer>
+            </VendorDetailsContainer>
+          )}
+          <ButtonGroup>
+            {isEditing ? (
+              <>
+                <SaveButton onClick={handleSave} disabled={!isEditing}>Save Changes</SaveButton>
+                <BackButton onClick={handleCancelEdit}>Cancel</BackButton>
+              </>
+            ) : (
+              <SaveButton onClick={handleEditClick}>Edit</SaveButton>
+            )}
+          </ButtonGroup>
+          {vendor && vendor.timeline && vendor.timeline.length > 0 ? (
+            <TimelineContainer>
+              <h3>Timeline</h3>
+              {vendor.timeline.map((item, index) => (
+                <TimelineItem key={index}>
+                  <p><strong>Status:</strong> {item.status}</p>
+                  <p><strong>Message:</strong> {item.message}</p>
+                  <p><strong>Email:</strong> {item.email}</p>
+                  <p><strong>Timestamp:</strong> {item.timestamp.toDate().toLocaleString()}</p>
+                  {item.uploadedImageUrl && (
+                    <ImagePreview
+                      src={item.uploadedImageUrl}
+                      alt={`Timeline upload ${index + 1}`}
+                      onClick={() => handleImageClick(item.uploadedImageUrl)}
+                    />
+                  )}
+                </TimelineItem>
+              ))}
+            </TimelineContainer>
+          ) : (
+            <TimelineContainer>
+              <h3>Timeline</h3>
+              <p>No timeline data available.</p>
+            </TimelineContainer>
+          )}
+        </FormContainer>
+
+        <FormContainer>
+          {documents && documents.length > 0 ? (
+            <>
+              {documentSteps.map((step) => (
+                <DocumentContainer key={step.step}>
+                  <h3>{step.label}</h3>
+                  {documents
+                    .filter((doc) => doc.step === step.step)
+                    .map((doc, index) => (
+                      <DocumentItem key={index}>
+                        <div>
+                          {Object.entries(doc).map(([key, value], docIndex) => (
+                            key.startsWith('sentdocs') && value && (
+                              <div key={docIndex} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <ImagePreview
+                                  src={value}
+                                  alt={`Document ${index + 1}`}
+                                  onClick={() => handleImageClick(value)}
+                                />
+                              </div>
+                            )
+                          ))}
+                          <p><strong>Status:</strong> {doc.status || 'Pending'}</p>
+                        </div>
+                        {doc.status !== 'Approved' && (
+                          <div>
+                            <DocumentButton approve={true} onClick={() => handleDocumentAction(step.step, index, 'approve')} style={{ marginBottom: '10px' }}>Approve</DocumentButton>
+                            <DocumentButton approve={false} onClick={() => handleDocumentAction(step.step, index, 'decline')}>Decline</DocumentButton>
+                          </div>
+                        )}
+                      </DocumentItem>
+                    ))}
+                </DocumentContainer>
+              ))}
+            </>
+          ) : (
+            <DocumentContainer>
+              <h3>Documents</h3>
+              <p>No documents available.</p>
+            </DocumentContainer>
+          )}
+        </FormContainer>
+
       </MainContent>
 
-      {/* Modal for Success Message */}
       {showModal && (
         <ModalOverlay>
           <ModalContainer>
             <h3>Success!</h3>
             <p>{successMessage}</p>
             <ModalButton onClick={handleModalClose}>Close</ModalButton>
+          </ModalContainer>
+        </ModalOverlay>
+      )}
+
+      {showImageModal && (
+        <ImageModalOverlay>
+          <ImageModalContainer>
+            <ImageModal src={imageUrl} alt="Preview" />
+            <ModalButton onClick={handleImageModalClose}>Close</ModalButton>
+          </ImageModalContainer>
+        </ImageModalOverlay>
+      )}
+
+      {showDeclineModal && (
+        <ModalOverlay>
+          <ModalContainer>
+            <h3>Decline Document</h3>
+            <Input
+              type="text"
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              placeholder="Enter decline reason"
+            />
+            <ModalButton onClick={handleDeclineSubmit} style={{ marginRight: '10px' }}>Submit</ModalButton>
+            <ModalButton onClick={() => setShowDeclineModal(false)} style={{ backgroundColor: 'red' }}>Cancel</ModalButton>
           </ModalContainer>
         </ModalOverlay>
       )}

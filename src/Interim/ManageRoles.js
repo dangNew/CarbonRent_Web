@@ -3,11 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaBars } from 'react-icons/fa'; // Importing a hamburger icon from react-icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-<<<<<<< HEAD
-import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faTicketAlt, faClipboard, faCheck} from '@fortawesome/free-solid-svg-icons';
-=======
 import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faCog, faTicketAlt} from '@fortawesome/free-solid-svg-icons';
->>>>>>> a8f5076 (main)
 
 const VendorContainer = styled.div`
   display: flex;
@@ -276,29 +272,6 @@ const AddUnit = () => {
         <SidebarMenu>
   <Link to="/dashboard" style={{ textDecoration: 'none' }}>
     <SidebarItem isSidebarOpen={isSidebarOpen}>
-<<<<<<< HEAD
-      <FontAwesomeIcon icon={faHome} className="icon" />
-      <span>Dashboard</span>
-    </SidebarItem>
-  </Link>
-  
-  <Link to="/list" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faShoppingCart} className="icon" />
-      <span>List of Vendors</span>
-    </SidebarItem>
-  </Link>
-  <Link to="/stalls" style={{ textDecoration: 'none' }}>
-  <SidebarItem isSidebarOpen={isSidebarOpen}>
-    <FontAwesomeIcon icon={faClipboard} className="icon" />
-    <span>List of Stalls</span>
-  </SidebarItem>
-</Link>
-
-  <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
-    <FontAwesomeIcon icon={faUser} className="icon" />
-    <span>User Management</span>
-=======
       <span>🏠</span>
       <span>Dashboard</span>
     </SidebarItem>
@@ -314,7 +287,6 @@ const AddUnit = () => {
     <span>👤</span>
     <span>User Management</span>
     <span style={{ marginLeft: 'auto' }}>&gt;</span>
->>>>>>> a8f5076 (main)
   </SidebarItem>
 
   {isDropdownOpen && (
@@ -322,11 +294,7 @@ const AddUnit = () => {
       <Link to="/usermanagement" style={{ textDecoration: 'none' }}>
         <li>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
-<<<<<<< HEAD
-            <FontAwesomeIcon icon={faSearch} className="icon" />
-=======
             <span>🔍</span>
->>>>>>> a8f5076 (main)
             <span>View Users</span>
           </SidebarItem>
         </li>
@@ -334,11 +302,7 @@ const AddUnit = () => {
       <Link to="/newuser" style={{ textDecoration: 'none' }}>
         <li>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
-<<<<<<< HEAD
-            <FontAwesomeIcon icon={faPlus} className="icon" />
-=======
             <span>➕</span>
->>>>>>> a8f5076 (main)
             <span>Add User</span>
           </SidebarItem>
         </li>
@@ -346,30 +310,6 @@ const AddUnit = () => {
     </ul>
   )}
 
-<<<<<<< HEAD
-  <Link to="/viewunit" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faPlus} className="icon" />
-      <span>Add New Unit</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/manage-roles" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faUsers} className="icon" />
-      <span>Manage Roles</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/contract" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faFileContract} className="icon" />
-      <span>Contract</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/ticket" style={{ textDecoration: 'none' }}>
-=======
         <Link to="/Addunit" style={{ textDecoration: 'none' }}>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
             <span>➕</span>
@@ -391,49 +331,12 @@ const AddUnit = () => {
           </SidebarItem>
         </Link>
         <Link to="/ticket" style={{ textDecoration: 'none' }}>
->>>>>>> a8f5076 (main)
   <SidebarItem isSidebarOpen={isSidebarOpen}>
     <FontAwesomeIcon icon={faTicketAlt} className="icon" />
     <span>Manage Ticket</span>
   </SidebarItem>
 </Link>
 
-<<<<<<< HEAD
-<SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
-    <FontAwesomeIcon icon={faUser} className="icon" />
-    <span>Manage Ambulant</span>
-  </SidebarItem>
-
-  {isDropdownOpen && (
-    <ul style={{ paddingLeft: '20px', listStyleType: 'none' }}>
-      <Link to="/assign" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faCheck} className="icon" />
-            <span> Assign Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/View" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-          <FontAwesomeIcon icon={faSearch} className="icon" />
-            <span> View Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/addcollector" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faPlus} className="icon" />
-            <span>Add Ambulant Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-    </ul>
-  )}
-</SidebarMenu>
-=======
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
             <span>⚙️</span>
@@ -441,7 +344,6 @@ const AddUnit = () => {
           </SidebarItem>
         </Link>
       </SidebarMenu>
->>>>>>> a8f5076 (main)
               </Sidebar>
 
         <MainContent isSidebarOpen={isSidebarOpen}>

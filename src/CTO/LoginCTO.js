@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import { interimAuth, interimDb } from '../components/firebase.config';
+import { rentmobileAuth, rentmobileDb } from '../components/firebase.config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -117,7 +117,7 @@ const Login = () => {
     try {
       // Query Firestore to check if the user exists in the 'users' collection
       const q = query(
-        collection(interimDb, 'users'),
+        collection(rentmobileDb, 'users'),
         where('email', '==', username) // Assuming username is the email
       );
       const querySnapshot = await getDocs(q);
@@ -129,7 +129,7 @@ const Login = () => {
       }
 
       // Sign in with Firebase Authentication
-      await signInWithEmailAndPassword(interimAuth, username, password);
+      await signInWithEmailAndPassword(rentmobileAuth, username, password);
 
       // Redirect to dashboard or home after successful login
       navigate('/dashboard');

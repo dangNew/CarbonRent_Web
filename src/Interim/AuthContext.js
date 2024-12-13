@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { interimAuth } from '../components/firebase.config';  // Adjust the path if needed
+import { rentmobileAuth } from '../components/firebase.config';  // Adjust the path if needed
 
 const AuthContext = createContext();
 
@@ -13,13 +13,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Firebase listener to track auth state changes
-    const unsubscribe = onAuthStateChanged(interimAuth, (user) => {
+    const unsubscribe = onAuthStateChanged(rentmobileAuth, (user) => {
+      console.log("Auth state changed:", user); // Debugging log
       setCurrentUser(user);
       setLoading(false);
     });
 
-    // Cleanup listener on unmount
     return unsubscribe;
   }, []);
 

@@ -1,13 +1,9 @@
-<<<<<<< HEAD
-import { initializeApp } from "firebase/app";
-import { getFirestore } from 'firebase/firestore';
-=======
 // Import the necessary functions from the Firebase SDKs
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
->>>>>>> a8f5076 (main)
 import { getAuth } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
+import { signOut } from 'firebase/auth';
 import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration

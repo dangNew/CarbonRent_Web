@@ -2,13 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom'; // Import useParams here
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-<<<<<<< HEAD
-import { FaBars, FaSearch, FaUserCircle, FaSignOutAlt} from 'react-icons/fa';
-import { faHome, faShoppingCart, faUser, faUsers, faPlus, faFileContract, faTicketAlt,faSearch, faClipboard, faCheck } from '@fortawesome/free-solid-svg-icons';
-=======
 import { FaBars, FaSearch, FaUserCircle, FaSignOutAlt, FaCalendarAlt  } from 'react-icons/fa';
 import { faHome, faShoppingCart, faUser, faUsers, faPlus, faFileContract, faCog, faTicketAlt,faSearch } from '@fortawesome/free-solid-svg-icons';
->>>>>>> a8f5076 (main)
 import { rentmobileDb } from '../components/firebase.config';
 import { collection, getDoc, doc, updateDoc, getDocs,setDoc } from 'firebase/firestore';
 import DatePicker from 'react-datepicker';
@@ -205,22 +200,14 @@ const FormContainer = styled.div`
   input[type="file"],
   textarea,
   .react-datepicker-wrapper {
-<<<<<<< HEAD
-    padding: 10px;
-=======
     padding: 12px;
->>>>>>> a8f5076 (main)
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
     background-color: #f5f5f5; /* Light gray background */
     transition: border-color 0.3s;
-<<<<<<< HEAD
-    width: 95%;
-=======
     width: 100%;
->>>>>>> a8f5076 (main)
   }
 
   input[type="text"]:focus,
@@ -296,8 +283,6 @@ const SearchInput = styled.input`
   width: 100%;
 `;
 
-<<<<<<< HEAD
-=======
 const TicketTable = styled.div`
   margin-top: 2rem;
   padding: 1rem;
@@ -331,7 +316,6 @@ const TicketTable = styled.div`
     }
   }
 `;
->>>>>>> a8f5076 (main)
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -375,9 +359,6 @@ const ModalButtons = styled.div`
   gap: 15px;
 `;
 
-<<<<<<< HEAD
-
-=======
 const CancelButton = styled.button`
   background-color: #dc3545; /* Bootstrap danger color */
   color: #ffffff;
@@ -394,7 +375,6 @@ const CancelButton = styled.button`
     transform: scale(1.05); /* Slightly enlarge on hover */
   }
 `;
->>>>>>> a8f5076 (main)
 const OkButton = styled.button`
   background-color: #007bff; /* Bootstrap primary color */
   color: white;
@@ -412,8 +392,6 @@ const OkButton = styled.button`
   }
 `;
 
-<<<<<<< HEAD
-=======
 const ConfirmButton = styled.button`
   background-color: #28a745; /* Bootstrap success color */
   color: #ffffff;
@@ -431,7 +409,6 @@ const ConfirmButton = styled.button`
   }
 `;
 
->>>>>>> a8f5076 (main)
 const NewTicket = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const sidebarRef = useRef(null);
@@ -646,15 +623,6 @@ const NewTicket = () => {
       <span>List of Vendors</span>
     </SidebarItem>
   </Link>
-<<<<<<< HEAD
-  <Link to="/stalls" style={{ textDecoration: 'none' }}>
-  <SidebarItem isSidebarOpen={isSidebarOpen}>
-    <FontAwesomeIcon icon={faClipboard} className="icon" />
-    <span>List of Stalls</span>
-  </SidebarItem>
-</Link>
-=======
->>>>>>> a8f5076 (main)
 
   <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
     <FontAwesomeIcon icon={faUser} className="icon" />
@@ -682,11 +650,7 @@ const NewTicket = () => {
     </ul>
   )}
 
-<<<<<<< HEAD
-  <Link to="/viewunit" style={{ textDecoration: 'none' }}>
-=======
   <Link to="/Addunit" style={{ textDecoration: 'none' }}>
->>>>>>> a8f5076 (main)
     <SidebarItem isSidebarOpen={isSidebarOpen}>
       <FontAwesomeIcon icon={faPlus} className="icon" />
       <span>Add New Unit</span>
@@ -714,48 +678,12 @@ const NewTicket = () => {
   </SidebarItem>
 </Link>
 
-<<<<<<< HEAD
-<SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
-    <FontAwesomeIcon icon={faUser} className="icon" />
-    <span>Manage Ambulant</span>
-  </SidebarItem>
-
-  {isDropdownOpen && (
-    <ul style={{ paddingLeft: '20px', listStyleType: 'none' }}>
-      <Link to="/assign" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faCheck} className="icon" />
-            <span> Assign Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/View" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-          <FontAwesomeIcon icon={faSearch} className="icon" />
-            <span> View Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/addcollector" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faPlus} className="icon" />
-            <span>Add Ambulant Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-    </ul>
-  )}
-=======
   <Link to="/settings" style={{ textDecoration: 'none' }}>
     <SidebarItem isSidebarOpen={isSidebarOpen}>
       <FontAwesomeIcon icon={faCog} className="icon" />
       <span>Settings</span>
     </SidebarItem>
   </Link>
->>>>>>> a8f5076 (main)
 </SidebarMenu>
 
       <SidebarFooter isSidebarOpen={isSidebarOpen}>

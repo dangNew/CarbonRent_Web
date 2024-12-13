@@ -3,11 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'; // Import usePa
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaBars, FaSearch, FaUserCircle, FaSignOutAlt, FaCalendarAlt  } from 'react-icons/fa';
-<<<<<<< HEAD
 import { faHome, faShoppingCart, faUser, faUsers, faPlus, faFileContract, faTicketAlt,faSearch, faClipboard, faCheck} from '@fortawesome/free-solid-svg-icons';
-=======
-import { faHome, faShoppingCart, faUser, faUsers, faPlus, faFileContract, faCog, faTicketAlt,faSearch } from '@fortawesome/free-solid-svg-icons';
->>>>>>> a8f5076 (main)
 import { rentmobileDb } from '../components/firebase.config';
 import { collection, getDoc, doc, updateDoc, getDocs } from 'firebase/firestore';
 import DatePicker from 'react-datepicker';
@@ -287,43 +283,6 @@ const SearchInput = styled.input`
   width: 100%;
 `;
 
-<<<<<<< HEAD
-
-=======
-const TicketTable = styled.div`
-  margin-top: 2rem;
-  padding: 1rem;
-  border-radius: 20px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 2px solid #dee2e6;
-    }
-
-    th {
-      background-color: #e9ecef;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .actions {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-    }
-  }
-`;
->>>>>>> a8f5076 (main)
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -574,15 +533,12 @@ const Dashboard = () => {
       <span>List of Vendors</span>
     </SidebarItem>
   </Link>
-<<<<<<< HEAD
   <Link to="/stalls" style={{ textDecoration: 'none' }}>
   <SidebarItem isSidebarOpen={isSidebarOpen}>
     <FontAwesomeIcon icon={faClipboard} className="icon" />
     <span>List of Stalls</span>
   </SidebarItem>
 </Link>
-=======
->>>>>>> a8f5076 (main)
 
   <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
     <FontAwesomeIcon icon={faUser} className="icon" />
@@ -610,11 +566,7 @@ const Dashboard = () => {
     </ul>
   )}
 
-<<<<<<< HEAD
   <Link to="/viewunit" style={{ textDecoration: 'none' }}>
-=======
-  <Link to="/Addunit" style={{ textDecoration: 'none' }}>
->>>>>>> a8f5076 (main)
     <SidebarItem isSidebarOpen={isSidebarOpen}>
       <FontAwesomeIcon icon={faPlus} className="icon" />
       <span>Add New Unit</span>
@@ -642,7 +594,6 @@ const Dashboard = () => {
   </SidebarItem>
 </Link>
 
-<<<<<<< HEAD
 <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
     <FontAwesomeIcon icon={faUser} className="icon" />
     <span>Manage Ambulant</span>
@@ -676,14 +627,6 @@ const Dashboard = () => {
       </Link>
     </ul>
   )}
-=======
-  <Link to="/settings" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faCog} className="icon" />
-      <span>Settings</span>
-    </SidebarItem>
-  </Link>
->>>>>>> a8f5076 (main)
 </SidebarMenu>
 
       <SidebarFooter isSidebarOpen={isSidebarOpen}>
