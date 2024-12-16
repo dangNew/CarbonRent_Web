@@ -1,11 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { rentmobileDb, interimAuth, interimDb } from '../components/firebase.config';
-import SideNav from './side_nav';
-import { FaBars, FaPencilAlt, FaTrash, FaStore, FaFilter, FaSearch } from 'react-icons/fa';
-import styled from 'styled-components';
-import { Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
+import {
+  rentmobileDb,
+  interimAuth,
+  interimDb,
+} from "../components/firebase.config";
+import SideNav from "./side_nav";
+import {
+  FaBars,
+  FaPencilAlt,
+  FaTrash,
+  FaStore,
+  FaFilter,
+  FaSearch,
+} from "react-icons/fa";
+import styled from "styled-components";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +31,7 @@ const Container = styled.div`
 `;
 
 const MainContent = styled.div`
-  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '70px')};
+  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? "230px" : "70px")};
   padding-left: 40px;
   background-color: #fff;
   padding: 2rem;
@@ -34,12 +52,12 @@ const AppBar = styled.div`
   background-color: #188423;
   color: white;
   font-size: 18px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: bold;
 `;
 
 const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
+  display: ${({ isSidebarOpen }) => (isSidebarOpen ? "none" : "block")};
   position: absolute;
   top: 5px;
   left: 15px;
@@ -107,7 +125,8 @@ const TableContainer = styled.div`
     border-collapse: collapse;
     font-size: 14px;
 
-    th, td {
+    th,
+    td {
       padding: 15px;
       text-align: left;
       border-bottom: 2px solid #dee2e6;
@@ -150,7 +169,6 @@ const TableContainer = styled.div`
   }
 `;
 
-
 const FormContainer = styled.div`
   margin-top: 2rem;
   padding: 1rem;
@@ -168,7 +186,8 @@ const FormContainer = styled.div`
     border-collapse: collapse;
     font-size: 14px;
 
-    th, td {
+    th,
+    td {
       padding: 15px;
       text-align: left;
       border-bottom: 2px solid #dee2e6;
@@ -212,12 +231,11 @@ const FormContainer = styled.div`
   }
 `;
 
-
 const ActionButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ isDelete }) => (isDelete ? '#d9534f' : '#188423')};
+  color: ${({ isDelete }) => (isDelete ? "#d9534f" : "#188423")};
   font-size: 1.5rem;
   transition: transform 0.2s;
 
@@ -235,17 +253,17 @@ const AvailableStalls = () => {
   const [stalls, setStalls] = useState([]);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [locationFilter, setLocationFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const unitsRef = collection(rentmobileDb, 'unit');
+        const unitsRef = collection(rentmobileDb, "unit");
         const querySnapshot = await getDocs(unitsRef);
         const locationList = querySnapshot.docs.map((doc) => {
           const data = doc.data();
@@ -253,19 +271,21 @@ const AvailableStalls = () => {
         });
         setLocations(locationList);
       } catch (error) {
-        console.error('Error fetching locations:', error);
+        console.error("Error fetching locations:", error);
       }
     };
 
     const fetchStalls = async () => {
       try {
-        const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
-        const userLocation = loggedInUserData?.location || '';
+        const loggedInUserData = JSON.parse(localStorage.getItem("userData"));
+        const userLocation = loggedInUserData?.location || "";
 
-        const querySnapshot = await getDocs(query(
-          collection(rentmobileDb, 'Stall'),
-          where('location', '==', userLocation)
-        ));
+        const querySnapshot = await getDocs(
+          query(
+            collection(rentmobileDb, "Stall"),
+            where("location", "==", userLocation)
+          )
+        );
         const stallList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -273,13 +293,13 @@ const AvailableStalls = () => {
         setStalls(stallList);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching stalls:', error);
+        console.error("Error fetching stalls:", error);
         setLoading(false);
       }
     };
 
     const fetchLoggedInUser = async () => {
-      const userData = JSON.parse(localStorage.getItem('userData'));
+      const userData = JSON.parse(localStorage.getItem("userData"));
       if (userData) {
         setLoggedInUser(userData);
       }
@@ -317,7 +337,8 @@ const AvailableStalls = () => {
   };
 
   const calculateDailyPayment = (stall) => {
-    const ratePerMeter = parseFloat(stall.ratePerMeter?.replace('₱', '') || '0') || 0;
+    const ratePerMeter =
+      parseFloat(stall.ratePerMeter?.replace("₱", "") || "0") || 0;
     const stallSize = parseFloat(stall.stallSize) || 0;
     return (ratePerMeter * stallSize).toFixed(2);
   };
@@ -325,8 +346,8 @@ const AvailableStalls = () => {
   const fetchBillingConfig = async () => {
     try {
       const billingConfigQuery = query(
-        collection(rentmobileDb, 'billingconfig'),
-        where('title', '==', 'RateperMeter')
+        collection(rentmobileDb, "billingconfig"),
+        where("title", "==", "RateperMeter")
       );
       const billingConfigSnapshot = await getDocs(billingConfigQuery);
       if (!billingConfigSnapshot.empty) {
@@ -339,7 +360,7 @@ const AvailableStalls = () => {
         );
       }
     } catch (error) {
-      console.error('Error fetching billing config:', error);
+      console.error("Error fetching billing config:", error);
     }
   };
 
@@ -350,14 +371,17 @@ const AvailableStalls = () => {
   const filteredStalls = stalls
     .filter(
       (stall) =>
-        stall.status === 'Available' &&
-        (locationFilter === '' || stall.location.trim().toLowerCase() === locationFilter.trim().toLowerCase()) &&
-        (stall.stallNumber.includes(searchTerm) || stall.location.toLowerCase().includes(searchTerm.toLowerCase()))
+        stall.status === "Available" &&
+        (locationFilter === "" ||
+          stall.location.trim().toLowerCase() ===
+            locationFilter.trim().toLowerCase()) &&
+        (stall.stallNumber.includes(searchTerm) ||
+          stall.location.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => {
-      if (a.status === 'Available' && b.status !== 'Available') return -1;  // "Available" comes first
-      if (a.status !== 'Available' && b.status === 'Available') return 1;   // "Occupied" comes last
-      return 0;  // Maintain the relative order if both are the same status
+      if (a.status === "Available" && b.status !== "Available") return -1; // "Available" comes first
+      if (a.status !== "Available" && b.status === "Available") return 1; // "Occupied" comes last
+      return 0; // Maintain the relative order if both are the same status
     });
 
   if (loading) {
@@ -376,58 +400,57 @@ const AvailableStalls = () => {
             <FaBars />
           </ToggleButton>
           <h1>Available Stalls</h1>
-          <Button onClick={() => navigate(-1)} sx={{ color: 'white' }}>
+          <Button onClick={() => navigate(-1)} sx={{ color: "white" }}>
             Back
           </Button>
         </AppBar>
 
         <FormContainer>
-        <SummaryContainer>
-          <ControlsContainer>
-            <p>{filteredStalls.length} Stalls</p>
-            <SearchBarContainer>
-              <FaSearch color="#333" />
-              <SearchInput
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </SearchBarContainer>
-          </ControlsContainer>
-        </SummaryContainer>
+          <SummaryContainer>
+            <ControlsContainer>
+              <p>{filteredStalls.length} Stalls</p>
+              <SearchBarContainer>
+                <FaSearch color="#333" />
+                <SearchInput
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </SearchBarContainer>
+            </ControlsContainer>
+          </SummaryContainer>
 
-        <TableContainer>
-          <table>
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Stall Number</th>
-                <th>Daily Payment</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStalls.map((stall) => (
-                <tr key={stall.id}>
-                  <td>{stall.location}</td>
-                  <td>{stall.stallNumber}</td>
-                  <td>₱{calculateDailyPayment(stall)}</td>
-                  <td>
-                    <ActionButton onClick={() => handleEdit(stall.id)}>
-                      <FaPencilAlt />
-                    </ActionButton>
-                    {/* <ActionButton onClick={() => handleDelete(stall.id)} isDelete>
+          <TableContainer>
+            <table>
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Stall Number</th>
+                  <th>Daily Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStalls.map((stall) => (
+                  <tr key={stall.id}>
+                    <td>{stall.location}</td>
+                    <td>{stall.stallNumber}</td>
+                    <td>₱{calculateDailyPayment(stall)}</td>
+                    <td>
+                      <ActionButton onClick={() => handleEdit(stall.id)}>
+                        <FaPencilAlt />
+                      </ActionButton>
+                      {/* <ActionButton onClick={() => handleDelete(stall.id)} isDelete>
                       <FaTrash />
                     </ActionButton> */}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableContainer>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableContainer>
         </FormContainer>
-        
       </MainContent>
     </Container>
   );
