@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaBars, FaEye, FaExclamationTriangle, FaReceipt } from 'react-icons/fa';
+import { FaSearch, FaBars, FaEye, FaExclamationTriangle } from 'react-icons/fa';
 import styled from 'styled-components';
 import SideNav from './side_nav';
 import { useNavigate } from 'react-router-dom';
@@ -150,7 +150,7 @@ const SearchInput = styled.input`
   color: #333;
 `;
 
-const ViolationButton = styled.button`
+const ReviewButton = styled.button`
   background-color: ${({ hasViolation }) => (hasViolation ? '#ff4d4d' : '#ddd')};
   color: white;
   border: none;
@@ -162,6 +162,21 @@ const ViolationButton = styled.button`
 
   &:hover {
     background-color: ${({ hasViolation }) => (hasViolation ? '#e63939' : '#ccc')}; /* Red color on hover */
+  }
+`;
+
+const PendingButton = styled.button`
+  background-color: ${({ hasPending }) => (hasPending ? '#ff4d4d' : '#ddd')};
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${({ hasPending }) => (hasPending ? '#e63939' : '#ccc')}; /* Red color on hover */
   }
 `;
 
@@ -268,6 +283,7 @@ const FormContainer = styled.div`
     }
   }
 `;
+
 const ViewButton = styled.button`
   background-color: #28a745;
   color: white;
@@ -283,7 +299,20 @@ const ViewButton = styled.button`
   }
 `;
 
+const PaidSettledButton = styled.button`
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
 
+  &:hover {
+    background-color: #0056b3; /* Dark blue color on hover */
+  }
+`;
 
 const ViolationReports = () => {
   const [violations, setViolations] = useState([]);
@@ -295,10 +324,6 @@ const ViolationReports = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleViolation = (vendorId) => {
-    navigate(`/vendor-transaction/${vendorId}`);
   };
 
   const handleSearch = (term) => {
@@ -317,6 +342,14 @@ const ViolationReports = () => {
 
   const handleViewReports = () => {
     navigate('/violation-reports');
+  };
+
+  const handleViewPending = (vendorId) => {
+    navigate(`/violation-pending/${vendorId}`);
+  };
+
+  const handleViewPaidSettled = (vendorId) => {
+    navigate(`/violation-paid-settled/${vendorId}`);
   };
 
   useEffect(() => {
@@ -353,31 +386,43 @@ const ViolationReports = () => {
           email: doc.data().email || '',
         };
       });
+
       const checkViolation = async (vendorId) => {
         try {
           const violationCollection = collection(rentmobileDb, 'Market_violations');
-          const q = query(violationCollection, where('vendorId', '==', vendorId));
+          const q = query(violationCollection, where('vendorId', '==', vendorId), where('stallLocation', '==', loggedInUser.location));
           const querySnapshot = await getDocs(q);
-          return querySnapshot.size; // Return the count of documents
+          const violations = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            status: doc.data().status,
+          }));
+          return violations;
         } catch (error) {
           console.error('Error checking violation:', error);
-          return 0;
+          return [];
         }
       };
 
       const dataWithChecks = await Promise.all(
         data.map(async (stall) => {
-          const violationCount = await checkViolation(stall.id);
-          return { ...stall, violationCount };
+          const violations = await checkViolation(stall.id);
+          const hasPending = violations.some(violation => violation.status === 'Pending');
+          const hasToBeReviewed = violations.some(violation => violation.status === 'To be Reviewed');
+          return { ...stall, violations, hasPending, hasToBeReviewed };
         })
       );
 
-      setViolations(dataWithChecks);
-      setFilteredViolations(dataWithChecks);
+      // Filter out vendors without violations
+      const vendorsWithViolations = dataWithChecks.filter(stall => stall.violations.length > 0);
+
+      setViolations(vendorsWithViolations);
+      setFilteredViolations(vendorsWithViolations);
     };
 
-    fetchData();
-  }, []);
+    if (loggedInUser) {
+      fetchData();
+    }
+  }, [loggedInUser]);
 
   return (
     <DashboardContainer>
@@ -396,7 +441,6 @@ const ViolationReports = () => {
           <ControlsContainer>
             <p>{filteredViolations.length} Violations</p>
             <SearchBar onSearch={handleSearch} />
-            <AddVendorButton onClick={handleViewReports}>Violation Reports</AddVendorButton>
           </ControlsContainer>
         </SummaryContainer>
 
@@ -407,7 +451,8 @@ const ViolationReports = () => {
                 <th>Stall No.</th>
                 <th>Stall Holder</th>
                 <th>Email</th>
-                <th>Violation</th>
+                <th>To be Reviewed</th>
+                <th>Pending</th>
                 <th className="actions">Actions</th>
               </tr>
             </thead>
@@ -418,20 +463,30 @@ const ViolationReports = () => {
                   <td>{stall.firstName} {stall.lastName}</td>
                   <td>{stall.email}</td>
                   <td>
-  {stall.violationCount > 0 ? (
-    <ViolationButton hasViolation={true}>
-      <FaExclamationTriangle style={{ marginRight: '6px' }} /> {/* Add the icon */}
-      Violation ({stall.violationCount})
-    </ViolationButton>
-  ) : (
-    'No Violation'
-  )}
-</td>
+                    {stall.hasToBeReviewed ? (
+                      <ReviewButton hasViolation={true} onClick={() => handleViewDetails(stall.id)}>
+                        <FaExclamationTriangle style={{ marginRight: '6px' }} /> {/* Add the icon */}
+                        To be Reviewed ({stall.violations.filter(v => v.status === 'To be Reviewed').length})
+                      </ReviewButton>
+                    ) : (
+                      'No Violation'
+                    )}
+                  </td>
+                  <td>
+                    {stall.hasPending ? (
+                      <PendingButton hasPending={true} onClick={() => handleViewPending(stall.id)}>
+                        <FaExclamationTriangle style={{ marginRight: '6px' }} /> {/* Add the icon */}
+                        Pending ({stall.violations.filter(v => v.status === 'Pending').length})
+                      </PendingButton>
+                    ) : (
+                      'No Pending'
+                    )}
+                  </td>
                   <td className="actions">
-                    <ViewButton onClick={() => handleViewDetails(stall.id)}>
-                      <FaEye /> View
-                    </ViewButton>
-                   
+
+                    <PaidSettledButton onClick={() => handleViewPaidSettled(stall.id)}>
+                      <FaEye /> View Paid & Settled
+                    </PaidSettledButton>
                   </td>
                 </tr>
               ))}

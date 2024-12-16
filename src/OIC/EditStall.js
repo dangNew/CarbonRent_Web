@@ -808,4 +808,6 @@ const EditStall = () => {
   );
 };
 
+
 export default EditStall;
+

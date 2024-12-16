@@ -104,7 +104,12 @@ const Table = styled.table`
   border-collapse: collapse;
   margin-top: 20px;
 
+<<<<<<< HEAD
   th, td {
+=======
+  th,
+  td {
+>>>>>>> b68990dff4d3155d3999ab0f7238fdeae1245a31
     padding: 12px;
     text-align: left;
     border: 1px solid #ddd;

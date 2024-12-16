@@ -13,7 +13,7 @@ const DashboardContainer = styled.div`
 `;
 
 const MainContent = styled.div`
-  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '70px')};
+  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? "230px" : "70px")};
   padding-left: 40px;
   background-color: #fff;
   width: 100%;
@@ -33,7 +33,7 @@ const AppBar = styled.div`
 `;
 
 const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
+  display: ${({ isSidebarOpen }) => (isSidebarOpen ? "none" : "block")};
   position: absolute;
   top: 5px;
   left: 15px;
@@ -127,7 +127,8 @@ const VendorInfo = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background-color: ${({ action }) => (action === 'approve' ? '#4CAF50' : '#F44336')};
+  background-color: ${({ action }) =>
+    action === "approve" ? "#4CAF50" : "#F44336"};
   color: white;
   border: none;
   padding: 8px 12px;
@@ -257,30 +258,30 @@ const CancelButton = styled(ModalButton)`
 `;
 
 const declineReasons = [
-  'Document requested not uploaded',
-  'Uploaded fake ID',
-  'Incomplete application',
-  'Incorrect information provided',
-  'Application does not meet criteria',
-  'Fake Information'
+  "Document requested not uploaded",
+  "Uploaded fake ID",
+  "Incomplete application",
+  "Incorrect information provided",
+  "Application does not meet criteria",
+  "Fake Information",
 ];
 
 const VendorVerification = () => {
   const [vendors, setVendors] = useState([]);
   const [filteredVendors, setFilteredVendors] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [unitNames, setUnitNames] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
   const [currentVendorId, setCurrentVendorId] = useState(null);
-  const [actionType, setActionType] = useState('');
-  const [declineReason, setDeclineReason] = useState('');
-  const [selectedDeclineReason, setSelectedDeclineReason] = useState('');
+  const [actionType, setActionType] = useState("");
+  const [declineReason, setDeclineReason] = useState("");
+  const [selectedDeclineReason, setSelectedDeclineReason] = useState("");
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const navigate = useNavigate();
@@ -290,7 +291,7 @@ const VendorVerification = () => {
   };
 
   useEffect(() => {
-    const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
+    const loggedInUserData = JSON.parse(localStorage.getItem("userData"));
     if (loggedInUserData) {
       setLoggedInUser(loggedInUserData);
     }
@@ -323,8 +324,10 @@ const VendorVerification = () => {
       let updatedVendors = vendors.filter(vendor => vendor.stallInfo?.location?.toLowerCase() === userLocation.toLowerCase());
 
       if (searchQuery) {
-        updatedVendors = updatedVendors.filter(vendor =>
-          `${vendor.firstName} ${vendor.middleName} ${vendor.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+        updatedVendors = updatedVendors.filter((vendor) =>
+          `${vendor.firstName} ${vendor.middleName} ${vendor.lastName}`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
         );
       }
 
@@ -515,7 +518,7 @@ const VendorVerification = () => {
       setIsSuccessModal(true);
       setSuccessMessage('Vendor declined successfully!');
     } catch (error) {
-      console.error('Error declining vendor:', error);
+      console.error("Error declining vendor:", error);
     }
   };
 
@@ -635,11 +638,19 @@ const VendorVerification = () => {
               <select
                 value={selectedDeclineReason}
                 onChange={(e) => setSelectedDeclineReason(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', marginBottom: '10px' }}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                  marginBottom: "10px",
+                }}
               >
                 <option value="">Select a reason</option>
                 {declineReasons.map((reason, index) => (
-                  <option key={index} value={reason}>{reason}</option>
+                  <option key={index} value={reason}>
+                    {reason}
+                  </option>
                 ))}
               </select>
               <textarea
@@ -651,9 +662,17 @@ const VendorVerification = () => {
                   }
                 }}
                 placeholder="Optional: Enter additional reason here (max 100 words)"
-                style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
               />
-              <ModalButton onClick={handleDecline} disabled={!selectedDeclineReason && !declineReason}>
+              <ModalButton
+                onClick={handleDecline}
+                disabled={!selectedDeclineReason && !declineReason}
+              >
                 Confirm Decline
               </ModalButton>
               <CancelButton onClick={() => setShowDeclineModal(false)}>

@@ -12,6 +12,7 @@ const LoginContainer = styled.div`
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
+  padding: 2rem;
   background-color: #f0f2f5;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -22,7 +23,9 @@ const FormContainer = styled.div`
   padding: 3rem;
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   width: 100%;
+  max-width: 500px;
   max-width: 500px;
 `;
 
@@ -30,6 +33,7 @@ const Title = styled.h2`
   margin-bottom: 2rem;
   text-align: center;
   color: #333;
+  font-size: 2rem;
   font-size: 2rem;
   font-weight: bold;
 `;
@@ -42,8 +46,10 @@ const Form = styled.form`
 
 const Input = styled.input`
   padding: 1.25rem;
+  padding: 1.25rem;
   border: 1px solid #ddd;
   border-radius: 8px;
+  font-size: 1.25rem;
   font-size: 1.25rem;
   width: 100%;
   box-sizing: border-box;
@@ -76,10 +82,12 @@ const TogglePassword = styled.span`
 
 const SubmitButton = styled.button`
   padding: 1rem;
+  padding: 1rem;
   background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 8px;
+  font-size: 1.25rem;
   font-size: 1.25rem;
   font-weight: bold;
   cursor: pointer;

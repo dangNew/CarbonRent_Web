@@ -1,95 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaBars, FaSearch, FaUserCircle, FaFilter, FaPrint } from 'react-icons/fa';
+import { FaBars, FaSearch, FaUserCircle, FaFilter, FaPrint, FaSignOutAlt, FaEye, FaFileInvoice, FaReceipt, FaBell, FaExclamationTriangle } from 'react-icons/fa';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faCog, faTicketAlt, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { FaSignOutAlt } from 'react-icons/fa';
-import { collection, getDocs } from 'firebase/firestore';
-import { stallholderDb } from '../components/firebase.config';
+import { faHome, faShoppingCart, faUser, faSearch, faPlus, faUsers, faFileContract, faTicketAlt, faClipboard, faPlusCircle, faCogs, faEye } from '@fortawesome/free-solid-svg-icons';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { rentmobileDb } from '../components/firebase.config';
+import ConfirmationModal from './ConfirmationModal';
+import IntSidenav from './IntSidenav';
+import NoticeModal from './NoticeModal';
+import ViolationModal from './ViolationModal'; // Import the new ViolationModal
 
+const ROWS_PER_PAGE = 10;
 
 const DashboardContainer = styled.div`
   display: flex;
   height: 100vh;
 `;
 
-const Sidebar = styled.div`
-  width: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '60px')};
-  background-color: #f8f9fa;
-  padding: 10px;
-  display: flex;
-  border: 1px solid #ddd;  /* ADD THIS */
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: width 0.3s ease;
-  position: fixed;
-  height: 100vh;
-  z-index: 100;
-  overflow: hidden;
-`;
-
-const SidebarMenu = styled.ul`
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`;
-
-const SidebarItem = styled.li`
-  display: flex;
-  align-items: center;
-  justify-content: ${({ isSidebarOpen }) => (isSidebarOpen ? 'flex-start' : 'center')};
-  padding: 10px;
-  margin-bottom: 10px;
-  margin-top: -10px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: ${({ active }) => (active ? 'white' : '#333')};
-  background-color: ${({ active }) => (active ? '#007bff' : 'transparent')};
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${({ active }) => (active ? '#007bff' : '#f1f3f5')};
-  }
-
-  .icon {
-    font-size: 1rem;  /* Increase the icon size */
-    color: #000;
-    transition: margin-left 0.2s ease;
-  }
-
-  span:last-child {
-    margin-left: 10px;
-    display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'inline' : 'none')};
-  }
-`;
-
-
-const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
-  position: absolute;
-  top: 5px;
-  left: 15px;
-  font-size: 1.8rem;
-  color: #333;
-  cursor: pointer;
-  z-index: 200;
-`;
-
 const MainContent = styled.div`
   margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '60px')};
-  padding-left: 40px;
+  padding-left: 10px;
   background-color: #fff;
   padding: 2rem;
-  width: 100%;
-  transition: margin-left 0.3s ease;
+  width: calc(100% - ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '60px')});
+  transition: margin-left 0.3s ease, width 0.3s ease;
   overflow-y: auto;
-  flex: 1;
 `;
 
 const AppBar = styled.div`
@@ -97,112 +33,11 @@ const AppBar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 40px 50px;
-  background-color: #188423; /* Updated color */
+  background-color: #188423;
   color: white;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
   font-size: 22px;
-  font-family: 'Inter', sans-serif; /* Use a professional font */
-  font-weight: bold; /* Apply bold weight */
-`;
-
-
-
-const ProfileHeader = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 40px 10px;
-  position: relative;
-  flex-direction: column;
-
-  .profile-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    color: #6c757d; // Subtle color for icon
-  }
-
-  .profile-name {
-    font-size: 1.2rem;
-    font-weight: 700; // Bolder text
-    color: black; // Darker gray for a professional look
-    display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'block' : 'none')};
-  }
-
-  hr {
-    width: 100%;
-    border: 0.5px solid #ccc;
-    margin-top: 15px;
-  }
-
-  .profile-position {
-    font-size: 1rem; /* Increase the font size */
-    font-weight: 600; /* Make it bold */
-    color: #007bff; /* Change color to blue for better visibility */
-    display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'block' : 'none')};
-    margin-top: 5px; /* Add some margin for spacing */
-  }
-`;
-
-
-const ProfileImage = styled.img`
-  border-radius: 50%;
-  width: 60px; /* Adjusted for better visibility */
-  height: 60px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Subtle shadow for a polished look
-`;
-
-
-const StatsContainer = styled.div`
-  display: flex;
-  gap: 2rem;
-  margin-top: 50px; /* Added margin to avoid overlapping with AppBar */
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-  }
-`;
-
-const StatBox = styled.div`
-  background-color: ${({ bgColor }) => bgColor || '#f4f4f4'};
-  padding: 3rem;
-  border-radius: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: white;
-  }
-
-  p {
-    font-size: 2rem;
-    margin: 0;
-    font-weight: bold;
-    color: white;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    p {
-      font-size: 1.6rem;
-    }
-  }
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
 `;
 
 const FormContainer = styled.div`
@@ -220,53 +55,79 @@ const FormContainer = styled.div`
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 12px;
 
     th, td {
-      padding: 15px;
+      padding: 10px;
       text-align: left;
       border-bottom: 2px solid #dee2e6;
     }
 
     th {
       background-color: #e9ecef;
+      color: #333;
+      font-weight: bold;
     }
 
     tr:nth-child(even) {
-      background-color: #f9f9f9;
+      background-color: #f2f2f2;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #ffffff;
+    }
+
+    tr:hover {
+      background-color: #f1f3f5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px; /* Space between the buttons */
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #0056b3; /* Darken on hover */
+      }
+
+      .icon {
+        font-size: 24px; /* Increase icon size */
+        color: black;
+      }
     }
   }
 `;
 
-const SearchBarContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background-color: #e9ecef;
-  border-radius: 20px;
-  margin-bottom: 20px;
-  margin-top: -25px;
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'flex' : 'none')};
-`;
-
-const SearchInput = styled.input`
-  border: none;
-  background: none;
-  outline: none;
-  margin-left: 10px;
-  width: 100%;
-`;
-
-
 const SearchBarCont = styled.div`
   display: flex;
   align-items: center;
-  padding: 20px;
-  background-color: #e9ecef;
-  border-radius: 10px;
-  margin-bottom: 50px;
-   margin-top: 50px; /*sa babaw nga margin*/
-  /* Always display the search bar */
+  padding: 12px 20px;
+  padding-left: 100px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin: 30px 0;
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const SearchIcon = styled(FaSearch)`
+  color: #6c757d;
+  font-size: 1.2em;
 `;
 
 const SearchIn = styled.input`
@@ -275,28 +136,47 @@ const SearchIn = styled.input`
   outline: none;
   margin-left: 10px;
   width: 100%;
+  font-size: 1em;
+  color: #495057;
+
+  ::placeholder {
+    color: #adb5bd;
+  }
+
+  &:focus {
+    color: #212529;
+  }
+`;
+
+const DateSearchBarCont = styled(SearchBarCont)`
+  margin-left: 20px;
+`;
+
+const TopBarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const PrintButton = styled.button`
-  background-color: #188423; /* Match the AppBar color */
+  background-color: #188423;
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 10px 15px;
+  padding: 12px 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
 
   &:hover {
-    background-color: #155724; /* Darker shade for hover */
+    background-color: #155724;
   }
 
   svg {
-    margin-right: 5px; /* Space between icon and text */
+    margin-right: 5px;
   }
 `;
-
 
 const FilterContainer = styled.div`
   display: flex;
@@ -310,69 +190,244 @@ const FilterButton = styled.button`
   background-color: #e9ecef;
   border: none;
   border-radius: 5px;
-  padding: 10px 15px; /* Match the padding of PrintButton */
+  padding: 12px 20px;
   cursor: pointer;
-  height: 40px; /* Set a fixed height if necessary */
+  height: 35px;
 
   &:hover {
     background-color: #d3d3d3;
   }
 
   svg {
-    margin-right: 5px; /* Space between icon and text */
+    margin-right: 2px;
   }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem; /* Space between buttons */
-`;
-const SidebarFooter = styled.div`
-  padding: 10px;
-  margin-top: auto; /* Pushes the footer to the bottom */
-  display: flex;
-  align-items: center;
-  justify-content: ${({ isSidebarOpen }) => (isSidebarOpen ? 'flex-start' : 'center')};
+  gap: 1rem;
 `;
 
-const LogoutButton = styled(SidebarItem)`
-  margin-top: 5px; /* Add some margin */
-  background-color: #dc3545; /* Bootstrap danger color */
-  color: white;
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
   align-items: center;
-  margin-left: 20px;
-  padding: 5px 15px; /* Add padding for a better button size */
-  border-radius: 5px; /* Rounded corners */
-  font-weight: bold; /* Make text bold */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+`;
+
+const PageButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  min-width: 50px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    background-color: #c82333; /* Darker red on hover */
-    transform: scale(1.05); /* Slightly scale up on hover */
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #c3c3c3;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    padding: 10px 14px;
+    font-size: 1rem;
   }
 `;
 
+const CurrentPageIndicator = styled.span`
+  margin: 0 8px;
+  font-size: 1.2rem;
+  color: #333;
+`;
 
+const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const DropdownButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  &:hover {
+    background-color: #155724;
+  }
+
+  svg {
+    margin-right: 5px;
+  }
+`;
+
+const DropdownContent = styled.div`
+  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+`;
+
+const DropdownItem = styled.div`
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ddd;
+  }
+`;
+
+const ViewButton = styled.button`
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #0056b3; /* Blue color on hover */
+  }
+`;
+
+const TransactionButton = styled.button`
+  background-color: #ffa500;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e68a00; /* Orange color on hover */
+  }
+`;
+
+const NoticeButton = styled.button`
+  background-color: ${({ hasNotice }) => (hasNotice ? '#FFA500' : '#ddd')}; /* Orange for active, light gray for inactive */
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${({ hasNotice }) => (hasNotice ? '#FF8C00' : '#ccc')}; /* Darker orange on hover for active, darker gray for inactive */
+  }
+`;
+
+const ViolationButton = styled.button`
+  background-color: ${({ hasViolation }) => (hasViolation ? '#ff4d4d' : '#ddd')};
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${({ hasViolation }) => (hasViolation ? '#e63939' : '#ccc')}; /* Red color on hover */
+  }
+`;
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [stallHolders, setStallHolders] = useState([]);
   const sidebarRef = useRef(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
-  const [totalUsers, setTotalUsers] = useState(0); // State to store 
+  const [totalUsers, setTotalUsers] = useState(0);
   const [filteredStallHolders, setFilteredStallHolders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-   const [dateFilter, setDateFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [stallNoFilter, setStallNoFilter] = useState('');
+  const [units, setUnits] = useState([]);
+  const [selectedUnit, setSelectedUnit] = useState('Select Unit');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateSearchTerm, setDateSearchTerm] = useState(''); // State for date search term
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStallHolder, setSelectedStallHolder] = useState(null);
+  const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState(null);
+  const [isViolationModalOpen, setIsViolationModalOpen] = useState(false); // State for ViolationModal
+  const [selectedViolation, setSelectedViolation] = useState(null); // State for selected violation
   const navigate = useNavigate();
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleView = (stallHolder) => {
+    setSelectedStallHolder(stallHolder);
+    setIsModalOpen(true);
+  };
+
+  const handleUnitSelect = (unit) => {
+    setSelectedUnit(unit);
+    setIsDropdownOpen(false);
+    setFilteredStallHolders(unit === 'All' ? stallHolders : stallHolders.filter(stall => stall.location === unit));
+  };
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(rentmobileDb, 'unit'));
+        const unitData = querySnapshot.docs.map(doc => doc.data().name);
+        setUnits(['All', ...unitData]);
+      } catch (error) {
+        console.error("Error fetching units:", error);
+      }
+    };
+
+    fetchUnits();
+  }, []);
+
+  const totalPages = Math.ceil(filteredStallHolders.length / itemsPerPage);
+  const currentStallHolders = filteredStallHolders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   const handleClickOutside = (event) => {
-   
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      setIsSidebarOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -382,54 +437,121 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Fetch total users and recent user data from Firestore
   useEffect(() => {
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(stallholderDb, 'users'));
-  
+      const querySnapshot = await getDocs(collection(rentmobileDb, 'approvedVendors'));
       const data = querySnapshot.docs.map((doc) => {
-        const stallInfo = doc.data().stallInfo || {}; // Fetch stallInfo map
+        const stallInfo = doc.data().stallInfo || {};
         const dateOfRegistration = doc.data().dateOfRegistration
           ? doc.data().dateOfRegistration.toDate().toLocaleDateString()
           : '';
-  
+
         return {
           id: doc.id,
-          stallNumber: stallInfo.stallNumber || '',  
-          firstName: doc.data().firstName || '',    
-          lastName: doc.data().lastName || '',     
-          location: stallInfo.location || '',       
-          areaMeters: stallInfo.stallSize || '',   
-          billing: stallInfo.ratePerMeter || '',  
-          date: dateOfRegistration,                
-          status: doc.data().status || stallInfo.status || '',  // Check both status fields
+          stallNumber: stallInfo.stallNumber || '',
+          firstName: doc.data().firstName || '',
+          lastName: doc.data().lastName || '',
+          location: stallInfo.location || '',
+          areaMeters: stallInfo.stallSize || '',
+          billing: stallInfo.ratePerMeter || '',
+          date: dateOfRegistration,
+          approvedBy: doc.data().approvedBy || '',
+          contactNumber: doc.data().contactNumber || '',
+          email: doc.data().email || '',
         };
       });
-  
-      console.log(data); // Inspect the fetched data
-      const acceptedStallHolders = data.filter((stall) =>
-        ['Accepted', 'accepted', 'ACCEPTED'].includes(stall.status)
+
+      const checkNotice = async (vendorId) => {
+        try {
+          const noticeCollection = collection(rentmobileDb, 'Notice_Report');
+          const q = query(noticeCollection, where('vendorId', '==', vendorId));
+          const querySnapshot = await getDocs(q);
+          return querySnapshot.size; // Return the count of documents
+        } catch (error) {
+          console.error('Error checking notice:', error);
+          return 0;
+        }
+      };
+
+      const checkViolation = async (vendorId) => {
+        try {
+          const violationCollection = collection(rentmobileDb, 'Market_violations');
+          const q = query(violationCollection, where('vendorId', '==', vendorId));
+          const querySnapshot = await getDocs(q);
+          return querySnapshot.size; // Return the count of documents
+        } catch (error) {
+          console.error('Error checking violation:', error);
+          return 0;
+        }
+      };
+
+      const dataWithChecks = await Promise.all(
+        data.map(async (stall) => {
+          const noticeCount = await checkNotice(stall.id);
+          const violationCount = await checkViolation(stall.id);
+          return { ...stall, noticeCount, violationCount };
+        })
       );
-  
-      setStallHolders(acceptedStallHolders); 
-      setFilteredStallHolders(acceptedStallHolders);
-      setTotalUsers(acceptedStallHolders.length);
+
+      setStallHolders(dataWithChecks);
+      setTotalUsers(dataWithChecks.length);
+
+      let filteredData = dataWithChecks;
+
+      if (selectedUnit !== 'Select Unit') {
+        filteredData = filteredData.filter(stall => stall.location === selectedUnit);
+      }
+
+      setFilteredStallHolders(filteredData);
     };
 
     fetchData();
-  }, []);
+  }, [selectedUnit]);
 
+  useEffect(() => {
+    if (selectedUnit === 'All') {
+      setFilteredStallHolders(stallHolders);
+    } else if (selectedUnit !== 'Select Unit') {
+      setFilteredStallHolders(stallHolders.filter(stall => stall.location === selectedUnit));
+    }
+  }, [selectedUnit, stallHolders]);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedStallHolder(null);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleDateSearchChange = (event) => {
+    setDateSearchTerm(event.target.value);
+  };
+
+  useEffect(() => {
+    let filteredData = stallHolders.filter(stall =>
+      (stall.firstName + ' ' + stall.lastName).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (dateSearchTerm) {
+      filteredData = filteredData.filter(stall => stall.date === dateSearchTerm);
+    }
+
+    if (stallNoFilter) {
+      filteredData = filteredData.filter(stall => stall.stallNumber === stallNoFilter);
+    }
+    if (selectedUnit !== 'Select Unit') {
+      filteredData = filteredData.filter(stall => stall.location === selectedUnit);
+    }
+
+    setFilteredStallHolders(filteredData);
+  }, [searchTerm, dateSearchTerm, stallHolders, stallNoFilter, selectedUnit]);
+
   const handleLogout = () => {
-   
-    localStorage.removeItem('userData'); 
+    localStorage.removeItem('userData');
     navigate('/login');
   };
-  const handleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
 
   const handlePrint = () => {
     const printContent = `
@@ -452,11 +574,14 @@ const Dashboard = () => {
               <tr>
                 <th>Stall No.</th>
                 <th>Stall Holder</th>
+                <th>Email</th>
                 <th>Unit</th>
                 <th>Area (Meters)</th>
-                <th>Rate Per Meter</th>
                 <th>Date</th>
-                <th>Status</th>
+                <th>Contact Number</th>
+                <th>Notice</th>
+                <th>Violation</th>
+                <th className="actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -464,11 +589,21 @@ const Dashboard = () => {
                 <tr>
                   <td>${stall.stallNumber}</td>
                   <td>${stall.firstName} ${stall.lastName}</td>
+                  <td>${stall.email}</td>
                   <td>${stall.location}</td>
                   <td>${stall.areaMeters}</td>
-                  <td>${stall.billing}</td>
                   <td>${stall.date}</td>
-                  <td>${stall.status}</td>
+                  <td>${stall.contactNumber}</td>
+                  <td>
+                    ${stall.noticeCount > 0 ? `<span style="color: red;">Notice (${stall.noticeCount})</span>` : 'No Notice'}
+                  </td>
+                  <td>
+                    ${stall.violationCount > 0 ? `<span style="color: red;">Violation (${stall.violationCount})</span>` : 'No Violation'}
+                  </td>
+                  <td className="actions">
+                    <button onClick="handleView(${stall.id})">View</button>
+                    <button onClick="handleTransaction(${stall.id})">Transaction</button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -476,7 +611,7 @@ const Dashboard = () => {
         </body>
       </html>
     `;
-  
+
     const newWindow = window.open('', '_blank');
     newWindow.document.write(printContent);
     newWindow.document.close();
@@ -485,272 +620,182 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    let filteredData = stallHolders.filter(stall => 
-      stall.firstName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Filter by date if a date is selected
-    if (dateFilter) {
-      filteredData = filteredData.filter(stall => stall.date === dateFilter);
-    }
-
-    // Filter by stall number if a number is selected
-    if (stallNoFilter) {
-      filteredData = filteredData.filter(stall => stall.stallNumber === stallNoFilter);
-    }
-
-    setFilteredStallHolders(filteredData);
-  }, [searchTerm, stallHolders, dateFilter, stallNoFilter]);
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleDateFilterChange = (event) => {
-    setDateFilter(event.target.value);
-  };
-
-  const handleStallNoFilterChange = (event) => {
-    setStallNoFilter(event.target.value);
-  };
-  
-  // Moved this code outside of `handleStallNoFilterChange`
-  // Fetch the logged-in user data
-  useEffect(() => {
     try {
       const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
       if (loggedInUserData) {
-        // Assuming you are fetching all users somewhere, otherwise fetch it
         const currentUser = stallHolders.find(user => user.email === loggedInUserData.email);
         setLoggedInUser(currentUser || loggedInUserData);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
     }
-  }, [stallHolders]); 
-  
+  }, [stallHolders]);
+
+  const handleMainContentClick = () => {
+    setIsSidebarOpen(false);
+  };
+
+  const handleTransaction = (stallHolder) => {
+    if (stallHolder) {
+      navigate(`/vendor-transaction/${stallHolder.id}`);
+    }
+  };
+
+  const handleNotice = (vendorId) => {
+    setSelectedNotice(vendorId);
+    setIsNoticeModalOpen(true);
+  };
+
+  const handleNoticeModalClose = () => {
+    setIsNoticeModalOpen(false);
+    setSelectedNotice(null);
+  };
+
+  const handleViolation = (vendorId) => {
+    setSelectedViolation(vendorId);
+    setIsViolationModalOpen(true);
+  };
+
+  const handleViolationModalClose = () => {
+    setIsViolationModalOpen(false);
+    setSelectedViolation(null);
+  };
 
   return (
     <DashboardContainer>
-     <Sidebar ref={sidebarRef} isSidebarOpen={isSidebarOpen}>
-        <Link to="/profile" style={{ textDecoration: 'none' }}>
-        <ProfileHeader isSidebarOpen={isSidebarOpen}>
-          {loggedInUser && loggedInUser.Image ? (
-            <ProfileImage src={loggedInUser.Image} alt={`${loggedInUser.firstName} ${loggedInUser.lastName}`} />
-          ) : (
-            <FaUserCircle className="profile-icon" />
-          )}
-          <span className="profile-name">{loggedInUser ? `${loggedInUser.firstName} ${loggedInUser.lastName}` : 'Guest'}</span>
-          
-          <span className="profile-email" style={{ fontSize: '0.9rem', color: '#6c757d', display: isSidebarOpen ? 'block' : 'none' }}>
-            {loggedInUser ? loggedInUser.email : ''}
-          </span>
-          
-          {/* Add position below the email */}
-          <span className="profile-position" style={{ fontSize: '0.9rem', color: '#6c757d', display: isSidebarOpen ? 'block' : 'none' }}>
-            {loggedInUser ? loggedInUser.position : ''}
-          </span>
-        </ProfileHeader>
-      </Link>
-
-
-        <SearchBarContainer isSidebarOpen={isSidebarOpen}>
-          <FaSearch />
-          <SearchInput type="text" placeholder="Search..." />
-        </SearchBarContainer>
-        
-        <SidebarMenu>
-  <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faHome} className="icon" />
-      <span>Dashboard</span>
-    </SidebarItem>
-  </Link>
-  
-  <Link to="/list" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faShoppingCart} className="icon" />
-      <span>List of Vendors</span>
-    </SidebarItem>
-  </Link>
-
-  <SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
-    <FontAwesomeIcon icon={faUser} className="icon" />
-    <span>User Management</span>
-  </SidebarItem>
-
-  {isDropdownOpen && (
-    <ul style={{ paddingLeft: '20px', listStyleType: 'none' }}>
-      <Link to="/usermanagement" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faSearch} className="icon" />
-            <span>View Users</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/newuser" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faPlus} className="icon" />
-            <span>Add User</span>
-          </SidebarItem>
-        </li>
-      </Link>
-    </ul>
-  )}
-
-  <Link to="/Addunit" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faPlus} className="icon" />
-      <span>Add New Unit</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/manage-roles" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faUsers} className="icon" />
-      <span>Manage Roles</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/contract" style={{ textDecoration: 'none' }}>
-    <SidebarItem isSidebarOpen={isSidebarOpen}>
-      <FontAwesomeIcon icon={faFileContract} className="icon" />
-      <span>Contract</span>
-    </SidebarItem>
-  </Link>
-
-  <Link to="/ticket" style={{ textDecoration: 'none' }}>
-  <SidebarItem isSidebarOpen={isSidebarOpen}>
-    <FontAwesomeIcon icon={faTicketAlt} className="icon" />
-    <span>Manage Ticket</span>
-  </SidebarItem>
-</Link>
-
-<SidebarItem isSidebarOpen={isSidebarOpen} onClick={handleDropdownToggle}>
-    <FontAwesomeIcon icon={faUser} className="icon" />
-    <span>Manage Ambulant</span>
-  </SidebarItem>
-
-  {isDropdownOpen && (
-    <ul style={{ paddingLeft: '20px', listStyleType: 'none' }}>
-      <Link to="/assign" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faCheck} className="icon" />
-            <span> Assign Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-      <Link to="/addcollector" style={{ textDecoration: 'none' }}>
-        <li>
-          <SidebarItem isSidebarOpen={isSidebarOpen}>
-            <FontAwesomeIcon icon={faPlus} className="icon" />
-            <span>Add Ambulant Collector</span>
-          </SidebarItem>
-        </li>
-      </Link>
-    </ul>
-  )}
-</SidebarMenu>
-      <SidebarFooter isSidebarOpen={isSidebarOpen}>
-          <LogoutButton isSidebarOpen={isSidebarOpen} onClick={handleLogout}>
-            <span><FaSignOutAlt /></span>
-            <span>Logout</span>
-          </LogoutButton>
-        </SidebarFooter>
-      </Sidebar>
-
-
-
-      <MainContent isSidebarOpen={isSidebarOpen}>
+      <div ref={sidebarRef}>
+        <IntSidenav
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          loggedInUser={loggedInUser}
+        />
+      </div>
+      <MainContent isSidebarOpen={isSidebarOpen} onClick={handleMainContentClick}>
         <AppBar>
-          <ToggleButton onClick={toggleSidebar}>
-            <FaBars />
-          </ToggleButton>
-          <div>LIST OF VENDORS</div>
+          <div className="title">LIST OF STALLHOLDER</div>
         </AppBar>
 
-        <ToggleButton isSidebarOpen={isSidebarOpen} onClick={toggleSidebar}>
-          <FaBars />
-        </ToggleButton>
-
-        <StatsContainer>
-          <StatBox bgColor="#11768C">
-            <h3>Total Vendor</h3>
-            <p>{totalUsers}</p>
-          </StatBox>
-
-          <StatBox bgColor="#188423">
-            <h3>Total Logins</h3>
-            <p>{totalUsers}</p>
-          </StatBox>
-        </StatsContainer><span>
-          
-        </span>
-
-        
-       <SearchBarCont>
-          <FaSearch />
-          <SearchIn 
-            type="text" 
-            placeholder="Search Stall Holders..." 
-            value={searchTerm} // Bind the input value to searchTerm
-            onChange={handleSearchChange} // Call handleSearchChange on input change
-          />
-        </SearchBarCont>
-
-        <ButtonContainer>
-        <PrintButton onClick={handlePrint}>
-              <FaPrint />
-              Print
-            </PrintButton>
-            <FilterContainer>
-              <FilterButton onClick={handleDateFilterChange}>
-                <FaFilter />
-                Filter by Date
-              </FilterButton>
-              <FilterButton onClick={handleStallNoFilterChange}>
-                <FaFilter />
-                Filter by Stall No.
-              </FilterButton>
-            </FilterContainer>
-          </ButtonContainer>
-
         <FormContainer>
-          <h3>Stall Information</h3>
+          <TopBarContainer>
+            <SearchBarCont>
+              <SearchIcon />
+              <SearchIn
+                type="text"
+                placeholder="Search Stall Holders..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </SearchBarCont>
+            <DateSearchBarCont>
+              <SearchIcon />
+              <SearchIn
+                type="date"
+                placeholder="Search by Date..."
+                value={dateSearchTerm}
+                onChange={handleDateSearchChange}
+              />
+            </DateSearchBarCont>
+            <ButtonContainer>
+              <PrintButton onClick={handlePrint}>
+                <FaPrint />
+                Print
+              </PrintButton>
+              <DropdownContainer>
+                <DropdownButton onClick={handleDropdownToggle}>
+                  {selectedUnit}
+                </DropdownButton>
+                <DropdownContent isOpen={isDropdownOpen}>
+                  {units.map((unit, index) => (
+                    <DropdownItem key={index} onClick={() => handleUnitSelect(unit)}>
+                      {unit}
+                    </DropdownItem>
+                  ))}
+                </DropdownContent>
+              </DropdownContainer>
+            </ButtonContainer>
+
+            
+          </TopBarContainer>
           <table>
             <thead>
               <tr>
                 <th>Stall No.</th>
                 <th>Stall Holder</th>
+                <th>Email</th>
                 <th>Unit</th>
-                <th>Area (Meters)</th>
-                <th>Rate Per Meter</th>
+                <th>Area </th>
                 <th>Date</th>
-                <th>Status</th>
+                <th>Contact Number</th>
+                <th>Notice</th>
+                <th>Violation</th>
                 <th className="actions">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredStallHolders.map((stall, index) => (
+              {currentStallHolders.map((stall, index) => (
                 <tr key={index}>
                   <td>{stall.stallNumber}</td>
                   <td>{stall.firstName} {stall.lastName}</td>
+                  <td>{stall.email}</td>
                   <td>{stall.location}</td>
                   <td>{stall.areaMeters}</td>
-                  <td>{stall.billing}</td>
                   <td>{stall.date}</td>
-                  <td>{stall.status}</td>
+                  <td>{stall.contactNumber}</td>
                   <td>
-                    <button>View</button>
+                    {stall.noticeCount > 0 ? (
+                      <NoticeButton hasNotice={true} onClick={() => handleNotice(stall.id)}>
+                        <FaBell style={{ marginRight: '6px' }} /> {/* Add the icon */}
+                        Notice ({stall.noticeCount})
+                      </NoticeButton>
+                    ) : (
+                      'No Notice'
+                    )}
+                  </td>
+                  <td>
+                    {stall.violationCount > 0 ? (
+                      <ViolationButton hasViolation={true} onClick={() => handleViolation(stall.id)}>
+                        <FaExclamationTriangle style={{ marginRight: '6px' }} /> {/* Add the icon */}
+                        Violation ({stall.violationCount})
+                      </ViolationButton>
+                    ) : (
+                      'No Violation'
+                    )}
+                  </td>
+                  <td className="actions">
+                    <ViewButton onClick={() => handleView(stall)}>
+                      <FontAwesomeIcon icon={faEye} /> View
+                    </ViewButton>
+                    <TransactionButton onClick={() => handleTransaction(stall)}>
+                      <FaReceipt /> Transaction
+                    </TransactionButton>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </FormContainer>
+
+        <PaginationContainer>
+          <PageButton onClick={handlePrevPage} disabled={currentPage === 1}>
+            Prev
+          </PageButton>
+          <CurrentPageIndicator>
+            Page {currentPage} of {totalPages}
+          </CurrentPageIndicator>
+          <PageButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Next
+          </PageButton>
+        </PaginationContainer>
+
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          message="View Stall Holder"
+          stallHolder={selectedStallHolder}
+        />
+
+        <NoticeModal isOpen={isNoticeModalOpen} onClose={handleNoticeModalClose} vendorId={selectedNotice} />
+        <ViolationModal isOpen={isViolationModalOpen} onClose={handleViolationModalClose} vendorId={selectedViolation} />
       </MainContent>
     </DashboardContainer>
   );

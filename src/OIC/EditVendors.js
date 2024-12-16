@@ -14,7 +14,7 @@ const DashboardContainer = styled.div`
 `;
 
 const MainContent = styled.div`
-  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '70px')};
+  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? "230px" : "70px")};
   padding-left: 40px;
   background-color: #fff;
   padding: 2rem;
@@ -35,7 +35,7 @@ const AppBar = styled.div`
 `;
 
 const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
+  display: ${({ isSidebarOpen }) => (isSidebarOpen ? "none" : "block")};
   position: absolute;
   top: 5px;
   left: 15px;
@@ -47,7 +47,7 @@ const ToggleButton = styled.div`
 
 const VendorDetailsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   margin-top: 20px;
   padding: 20px;
   border: 1px solid #ccc;
@@ -55,14 +55,43 @@ const VendorDetailsContainer = styled.div`
   background-color: #fff;
 `;
 
-const LeftContainer = styled.div`
-  width: 60%;
+const ProfileSection = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
-const RightContainer = styled.div`
-  width: 35%;
-  border-left: 1px solid #ccc;
-  padding-left: 20px;
+const ProfileImage = styled.img`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 20px;
+  cursor: pointer;
+`;
+
+const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ProfileName = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+const ProfileBio = styled.div`
+  font-size: 16px;
+  color: #555;
+`;
+
+const PersonalInfoContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
+const PersonalInfoSection = styled.div`
+  width: 48%;
 `;
 
 const FieldGroup = styled.div`
@@ -76,11 +105,12 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 90%;
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  ${({ disabled }) => disabled && 'background-color: #f0f0f0; cursor: not-allowed;'}
+  ${({ disabled }) =>
+    disabled && "background-color: #f0f0f0; cursor: not-allowed;"}
 `;
 
 const ButtonGroup = styled.div`
@@ -95,7 +125,7 @@ const SaveButton = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   margin-right: 10px;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
@@ -108,25 +138,6 @@ const BackButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
   margin-right: 10px;
-`;
-
-const ImagePreview = styled.img`
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  margin-top: 10px;
-  cursor: pointer;
-`;
-
-const PlaceholderAvatar = styled.div`
-  width: 100px;
-  height: 100px;
-  background-color: #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: green;
 `;
 
 const TimelineContainer = styled.div`
@@ -158,8 +169,20 @@ const DocumentItem = styled.div`
   border: 1px solid #ddd;
   border-radius: 4px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+`;
+
+const DocumentImageContainer = styled.div`
+  display: flex;
+  margin-bottom: 10px;
+`;
+
+const DocumentImage = styled.img`
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-right: 10px;
+  cursor: pointer;
 `;
 
 const DocumentButton = styled.button`
@@ -222,8 +245,8 @@ const ImageModalContainer = styled.div`
   background: white;
   border-radius: 8px;
   padding: 20px;
-  max-width: 50%; // Adjusted to 50% of the viewport width
-  max-height: 50%; // Adjusted to 50% of the viewport height
+  max-width: 50%;
+  max-height: 50%;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -264,18 +287,17 @@ const FormContainer = styled.div`
       background-color: #e9ecef;
     }
 
-    // Striped rows
     tr:nth-child(even) {
-      background-color: #f2f2f2; // Light gray for even rows
+      background-color: #f2f2f2;
     }
 
     tr:nth-child(odd) {
-      background-color: #ffffff; // White for odd rows
+      background-color: #ffffff;
     }
 
     .actions {
       display: flex;
-      gap: 5px; /* Space between the buttons */
+      gap: 5px;
     }
 
     .action-button {
@@ -287,11 +309,11 @@ const FormContainer = styled.div`
       transition: color 0.2s ease;
 
       &:hover {
-        color: #0056b3; /* Darken on hover */
+        color: #0056b3;
       }
 
       .icon {
-        font-size: 24px; /* Increase icon size */
+        font-size: 24px;
         color: black;
       }
     }
@@ -326,7 +348,7 @@ const EditVendors = () => {
         setVendor(vendorDoc.data());
         setDocuments(vendorDoc.data().Documents || []);
       } else {
-        console.log('No such vendor!');
+        console.log("No such vendor!");
       }
     };
 
@@ -390,7 +412,7 @@ const EditVendors = () => {
       await updateDoc(doc(rentmobileDb, 'approvedVendors', Id), vendor);
       setSuccessMessage('Vendor details updated successfully!');
       setShowModal(true);
-      setIsEditing(false); // Revert to display mode
+      setIsEditing(false);
     } catch (error) {
       console.error('Error updating vendor:', error);
       setSuccessMessage('Error updating vendor details. Please try again.');
@@ -541,120 +563,132 @@ const EditVendors = () => {
         <FormContainer>
           {vendor && (
             <VendorDetailsContainer>
-              <LeftContainer>
-                <FieldGroup>
-                  <Label>Profile Image</Label>
-                  {vendor.profileImageUrls && vendor.profileImageUrls.length > 0 ? (
-                    <ImagePreview
-                      src={vendor.profileImageUrls[0]}
-                      alt="Profile"
-                      onClick={() => handleImageClick(vendor.profileImageUrls[0])}
-                    />
-                  ) : (
-                    <PlaceholderAvatar>
-                      <span role="img" aria-label="user">👤</span>
-                    </PlaceholderAvatar>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Email</Label>
-                  {isEditing ? (
-                    <Input type="email" value={vendor.email} onChange={(e) => handleInputChange('email', e.target.value)} />
-                  ) : (
-                    <p>{vendor.email}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>First Name</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.firstName} onChange={(e) => handleInputChange('firstName', e.target.value)} />
-                  ) : (
-                    <p>{vendor.firstName}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Middle Name</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.middleName} onChange={(e) => handleInputChange('middleName', e.target.value)} />
-                  ) : (
-                    <p>{vendor.middleName}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Last Name</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.lastName} onChange={(e) => handleInputChange('lastName', e.target.value)} />
-                  ) : (
-                    <p>{vendor.lastName}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Contact Number</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.contactNumber} onChange={(e) => handleInputChange('contactNumber', e.target.value)} />
-                  ) : (
-                    <p>{vendor.contactNumber}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Barangay</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.barangay} onChange={(e) => handleInputChange('barangay', e.target.value)} />
-                  ) : (
-                    <p>{vendor.barangay}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>City</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.city} onChange={(e) => handleInputChange('city', e.target.value)} />
-                  ) : (
-                    <p>{vendor.city}</p>
-                  )}
-                </FieldGroup>
-              </LeftContainer>
-              <RightContainer>
-                <FieldGroup>
-                  <Label>Stall Location</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.stallInfo.location} onChange={(e) => handleStallInfoChange('location', e.target.value)} />
-                  ) : (
-                    <p>{vendor.stallInfo.location}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Stall Number</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.stallInfo.stallNumber} onChange={(e) => handleStallInfoChange('stallNumber', e.target.value)} />
-                  ) : (
-                    <p>{vendor.stallInfo.stallNumber}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Rate Per Meter</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.stallInfo.ratePerMeter} onChange={(e) => handleStallInfoChange('ratePerMeter', e.target.value)} />
-                  ) : (
-                    <p>{vendor.stallInfo.ratePerMeter}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Stall Size</Label>
-                  {isEditing ? (
-                    <Input type="text" value={vendor.stallInfo.stallSize} onChange={(e) => handleStallInfoChange('stallSize', e.target.value)} />
-                  ) : (
-                    <p>{vendor.stallInfo.stallSize}</p>
-                  )}
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>Billing Cycle</Label>
-                  {isEditing && isBillingCycleEditable ? (
-                    <Input type="text" value={vendor.billingCycle} onChange={(e) => handleInputChange('billingCycle', e.target.value)} />
-                  ) : (
-                    <p>{vendor.billingCycle}</p>
-                  )}
-                </FieldGroup>
-              </RightContainer>
+              <ProfileSection>
+                {vendor.profileImageUrls && vendor.profileImageUrls.length > 0 ? (
+                  <ProfileImage
+                    src={vendor.profileImageUrls[0]}
+                    alt="Profile"
+                    onClick={() => handleImageClick(vendor.profileImageUrls[0])}
+                  />
+                ) : (
+                  <ProfileImage
+                    src="https://via.placeholder.com/100"
+                    alt="Placeholder"
+                  />
+                )}
+                <ProfileInfo>
+                  <ProfileName>{vendor.firstName} {vendor.lastName}</ProfileName>
+                  <ProfileBio>{vendor.bio}</ProfileBio>
+                </ProfileInfo>
+              </ProfileSection>
+              <PersonalInfoContainer>
+                <PersonalInfoSection>
+                  <FieldGroup>
+                    <Label>Email</Label>
+                    {isEditing ? (
+                      <Input type="email" value={vendor.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+                    ) : (
+                      <p>{vendor.email}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>First Name</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.firstName} onChange={(e) => handleInputChange('firstName', e.target.value)} />
+                    ) : (
+                      <p>{vendor.firstName}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Middle Name</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.middleName} onChange={(e) => handleInputChange('middleName', e.target.value)} />
+                    ) : (
+                      <p>{vendor.middleName}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Last Name</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.lastName} onChange={(e) => handleInputChange('lastName', e.target.value)} />
+                    ) : (
+                      <p>{vendor.lastName}</p>
+                    )}
+                  </FieldGroup>
+                </PersonalInfoSection>
+                <PersonalInfoSection>
+                  <FieldGroup>
+                    <Label>Contact Number</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.contactNumber} onChange={(e) => handleInputChange('contactNumber', e.target.value)} />
+                    ) : (
+                      <p>{vendor.contactNumber}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Barangay</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.barangay} onChange={(e) => handleInputChange('barangay', e.target.value)} />
+                    ) : (
+                      <p>{vendor.barangay}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>City</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.city} onChange={(e) => handleInputChange('city', e.target.value)} />
+                    ) : (
+                      <p>{vendor.city}</p>
+                    )}
+                  </FieldGroup>
+                </PersonalInfoSection>
+              </PersonalInfoContainer>
+              <PersonalInfoContainer>
+                <PersonalInfoSection>
+                  <FieldGroup>
+                    <Label>Stall Location</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.stallInfo.location} onChange={(e) => handleStallInfoChange('location', e.target.value)} />
+                    ) : (
+                      <p>{vendor.stallInfo.location}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Stall Number</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.stallInfo.stallNumber} onChange={(e) => handleStallInfoChange('stallNumber', e.target.value)} />
+                    ) : (
+                      <p>{vendor.stallInfo.stallNumber}</p>
+                    )}
+                  </FieldGroup>
+                </PersonalInfoSection>
+                <PersonalInfoSection>
+                  <FieldGroup>
+                    <Label>Rate Per Meter</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.stallInfo.ratePerMeter} onChange={(e) => handleStallInfoChange('ratePerMeter', e.target.value)} />
+                    ) : (
+                      <p>{vendor.stallInfo.ratePerMeter}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Stall Size</Label>
+                    {isEditing ? (
+                      <Input type="text" value={vendor.stallInfo.stallSize} onChange={(e) => handleStallInfoChange('stallSize', e.target.value)} />
+                    ) : (
+                      <p>{vendor.stallInfo.stallSize}</p>
+                    )}
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>Billing Cycle</Label>
+                    {isEditing && isBillingCycleEditable ? (
+                      <Input type="text" value={vendor.billingCycle} onChange={(e) => handleInputChange('billingCycle', e.target.value)} />
+                    ) : (
+                      <p>{vendor.billingCycle}</p>
+                    )}
+                  </FieldGroup>
+                </PersonalInfoSection>
+              </PersonalInfoContainer>
             </VendorDetailsContainer>
           )}
           <ButtonGroup>
@@ -677,7 +711,7 @@ const EditVendors = () => {
                   <p><strong>Email:</strong> {item.email}</p>
                   <p><strong>Timestamp:</strong> {item.timestamp.toDate().toLocaleString()}</p>
                   {item.uploadedImageUrl && (
-                    <ImagePreview
+                    <ProfileImage
                       src={item.uploadedImageUrl}
                       alt={`Timeline upload ${index + 1}`}
                       onClick={() => handleImageClick(item.uploadedImageUrl)}
@@ -704,20 +738,19 @@ const EditVendors = () => {
                     .filter((doc) => doc.step === step.step)
                     .map((doc, index) => (
                       <DocumentItem key={index}>
-                        <div>
+                        <DocumentImageContainer>
                           {Object.entries(doc).map(([key, value], docIndex) => (
                             key.startsWith('sentdocs') && value && (
-                              <div key={docIndex} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                <ImagePreview
-                                  src={value}
-                                  alt={`Document ${index + 1}`}
-                                  onClick={() => handleImageClick(value)}
-                                />
-                              </div>
+                              <DocumentImage
+                                key={docIndex}
+                                src={value}
+                                alt={`Document ${index + 1}`}
+                                onClick={() => handleImageClick(value)}
+                              />
                             )
                           ))}
-                          <p><strong>Status:</strong> {doc.status || 'Pending'}</p>
-                        </div>
+                        </DocumentImageContainer>
+                        <p><strong>Status:</strong> {doc.status || 'Pending'}</p>
                         {doc.status !== 'Approved' && (
                           <div>
                             <DocumentButton approve={true} onClick={() => handleDocumentAction(step.step, index, 'approve')} style={{ marginBottom: '10px' }}>Approve</DocumentButton>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore'; // Ensure correct Firestore imports
-import { stallholderDb } from '../components/firebase.config'; // Correctly import your Firestore instance
+import { rentmobileDb } from '../components/firebase.config'; // Correctly import your Firestore instance
 
 const ViewPayment = () => {
   const { id } = useParams(); // Get the stall ID from the URL
@@ -10,7 +10,7 @@ const ViewPayment = () => {
   useEffect(() => {
     const fetchStallData = async () => {
       try {
-        const docRef = doc(stallholderDb, 'users', id); // Reference to the specific document in 'users' collection
+        const docRef = doc(rentmobileDb, 'admin_users', id); // Reference to the specific document in 'users' collection
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {

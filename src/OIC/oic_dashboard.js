@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaBars, FaUsers, FaHourglassHalf, FaStore, FaPencilAlt, FaSearch } from 'react-icons/fa';
+import { FaBars, FaUsers, FaHourglassHalf, FaStore, FaPencilAlt, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { collection, getDocs, doc, updateDoc, query, where, orderBy, limit } from 'firebase/firestore';
 import { rentmobileDb } from '../components/firebase.config';
 import SideNav from './side_nav';
@@ -14,7 +14,7 @@ const DashboardContainer = styled.div`
 `;
 
 const MainContent = styled.div`
-  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '70px')};
+  margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? "230px" : "70px")};
   padding-left: 40px;
   background-color: #fff;
   padding: 2rem;
@@ -37,7 +37,7 @@ const AppBar = styled.div`
 `;
 
 const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
+  display: ${({ isSidebarOpen }) => (isSidebarOpen ? "none" : "block")};
   position: absolute;
   top: 5px;
   left: 15px;
@@ -254,7 +254,6 @@ const FormContainer = styled.div`
   }
 `;
 
-
 const SearchInput = styled.input`
   border: none;
   background: none;
@@ -297,6 +296,7 @@ const Dashboard = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [stallHolders, setStallHolders] = useState([]);
   const [filteredStallHolders, setFilteredStallHolders] = useState([]);
+  const [toBeReviewedCount, setToBeReviewedCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -423,6 +423,28 @@ const Dashboard = () => {
     fetchStallHolders();
   }, []);
 
+  useEffect(() => {
+    const fetchToBeReviewedCount = async () => {
+      try {
+        const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
+        const userLocation = loggedInUserData?.location || '';
+
+        const toBeReviewedQuery = query(
+          collection(rentmobileDb, 'Market_violations'),
+          where('stallLocation', '==', userLocation),
+          where('status', '==', 'To be Reviewed')
+        );
+        const querySnapshot = await getDocs(toBeReviewedQuery);
+        const count = querySnapshot.size;
+        setToBeReviewedCount(count);
+      } catch (error) {
+        console.error('Error fetching to be reviewed count:', error);
+      }
+    };
+
+    fetchToBeReviewedCount();
+  }, []);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -436,11 +458,13 @@ const Dashboard = () => {
 
         const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
         if (loggedInUserData) {
-          const currentUser = allUsers.find(user => user.email === loggedInUserData.email);
+          const currentUser = allUsers.find(
+            (user) => user.email === loggedInUserData.email
+          );
           setLoggedInUser(currentUser || loggedInUserData);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -500,10 +524,21 @@ const Dashboard = () => {
             </div>
           </StatBox>
           <StatBox bgColor="#42a5f5" onClick={() => navigate('/vendor-verification')}>
-            <h3>Pending Approval</h3>
+            <h3>Pending verification</h3>
             <p>{pendingApprovalCount}</p>
             <div className="icon-container">
               <FaHourglassHalf className="fading-icon" style={{
+                fontSize: '30px',
+                opacity: 0.5,
+                animation: 'fade 2s infinite alternate'
+              }} />
+            </div>
+          </StatBox>
+          <StatBox bgColor="#ffa726" onClick={() => navigate('/violations')}>
+            <h3>Manage Violations</h3>
+            <p>{toBeReviewedCount}</p>
+            <div className="icon-container">
+              <FaExclamationTriangle className="fading-icon" style={{
                 fontSize: '30px',
                 opacity: 0.5,
                 animation: 'fade 2s infinite alternate'

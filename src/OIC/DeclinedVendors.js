@@ -9,6 +9,7 @@ import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ReactSwitch from 'react-switch';
 
+
 const DashboardContainer = styled.div`
   display: flex;
   height: 100vh;
@@ -16,6 +17,7 @@ const DashboardContainer = styled.div`
 `;
 
 const MainContent = styled.div`
+
   margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '70px')};
   padding-left: 40px;
   background-color: #fff;
@@ -37,12 +39,12 @@ const AppBar = styled.div`
   background-color: #188423;
   color: white;
   font-size: 22px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: bold;
 `;
 
 const ToggleButton = styled.div`
-  display: ${({ isSidebarOpen }) => (isSidebarOpen ? 'none' : 'block')};
+  display: ${({ isSidebarOpen }) => (isSidebarOpen ? "none" : "block")};
   position: absolute;
   top: 5px;
   left: 15px;
@@ -62,7 +64,8 @@ const TableContainer = styled.div`
     border-collapse: collapse;
     font-size: 14px;
 
-    th, td {
+    th,
+    td {
       padding: 15px;
       text-align: left;
       border-bottom: 2px solid #dee2e6;
@@ -174,8 +177,8 @@ const FormContainer = styled.div`
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
-
-    th, td {
+    th,
+    td {
       padding: 15px;
       text-align: left;
       border-bottom: 2px solid #dee2e6;
@@ -230,7 +233,10 @@ const SearchInput = styled.input`
 `;
 
 const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+
+
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -255,7 +261,10 @@ const SearchBar = ({ onSearch }) => {
 const DeclinedVendors = () => {
   const [declinedVendors, setDeclinedVendors] = useState([]);
   const [filteredDeclinedVendors, setFilteredDeclinedVendors] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState('');
+ 
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const navigate = useNavigate();
@@ -266,10 +275,13 @@ const DeclinedVendors = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    const filtered = declinedVendors.filter(vendor =>
-      (vendor.firstName.toLowerCase().includes(term.toLowerCase()) ||
-      vendor.lastName.toLowerCase().includes(term.toLowerCase()) ||
-      vendor.stallNumber.includes(term))
+
+
+    const filtered = declinedVendors.filter(
+      (vendor) =>
+        vendor.firstName.toLowerCase().includes(term.toLowerCase()) ||
+        vendor.lastName.toLowerCase().includes(term.toLowerCase()) ||
+        vendor.stallNumber.includes(term)
     );
     setFilteredDeclinedVendors(filtered);
   };
@@ -280,7 +292,8 @@ const DeclinedVendors = () => {
 
   useEffect(() => {
     const fetchLoggedInUser = async () => {
-      const userData = JSON.parse(localStorage.getItem('userData'));
+
+      const userData = JSON.parse(localStorage.getItem("userData"));
       if (userData) {
         setLoggedInUser(userData);
       }
@@ -291,26 +304,33 @@ const DeclinedVendors = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const loggedInUserData = JSON.parse(localStorage.getItem('userData'));
-      const userLocation = loggedInUserData?.location || '';
 
-      const querySnapshot = await getDocs(query(
-        collection(rentmobileDb, 'declinedVendors'),
-        where('stallInfo.location', '==', userLocation)
-      ));
+      const loggedInUserData = JSON.parse(localStorage.getItem("userData"));
+      const userLocation = loggedInUserData?.location || "";
+
+      const querySnapshot = await getDocs(
+        query(
+          collection(rentmobileDb, "declinedVendors"),
+          where("stallInfo.location", "==", userLocation)
+        )
+      );
+
       const data = querySnapshot.docs.map((doc) => {
         const stallInfo = doc.data().stallInfo || {};
         const dateOfRegistration = doc.data().dateOfRegistration
           ? doc.data().dateOfRegistration.toDate().toLocaleDateString()
-          : '';
+
+          : "";
+
         return {
           id: doc.id,
           firstName: doc.data().firstName,
           lastName: doc.data().lastName,
-          stallNumber: stallInfo.stallNumber || '',
-          location: stallInfo.location || '',
+          stallNumber: stallInfo.stallNumber || "",
+          location: stallInfo.location || "",
           dateOfRegistration,
-          status: doc.data().status || 'declined' // Include the status field
+          status: doc.data().status || "declined", // Include the status field
+
         };
       });
       setDeclinedVendors(data);
@@ -331,6 +351,7 @@ const DeclinedVendors = () => {
           <ToggleButton isSidebarOpen={isSidebarOpen} onClick={toggleSidebar}>
             <FaBars />
           </ToggleButton>
+
           <div>{loggedInUser?.name || 'List of Declined Vendors'}</div>
 
           <Button onClick={() => navigate(-1)} sx={{ color: 'white' }}>
@@ -364,7 +385,12 @@ const DeclinedVendors = () => {
                     <td>{vendor.dateOfRegistration}</td>
                     <td>{vendor.location}</td>
                     <td className="actions">
-                      <div className="action-button" onClick={() => handleViewClick(vendor.id)}>
+
+                      <div
+                        className="action-button"
+                        onClick={() => handleViewClick(vendor.id)}
+                      >
+
                         <FaEye className="icon" />
                       </div>
                     </td>

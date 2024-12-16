@@ -1,21 +1,12 @@
 // Import the necessary functions from the Firebase SDKs
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
+
 import { getAuth } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
 import { signOut } from 'firebase/auth';
 import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
-const stallholderConfig = {
-  apiKey: "AIzaSyCwCDc-WfwmT839L5LJZYiVCfpQZmZ2qws",
-  authDomain: "stallholder-bd4f7.firebaseapp.com",
-  databaseURL: "https://stallholder-bd4f7-default-rtdb.firebaseio.com",
-  projectId: "stallholder-bd4f7",
-  storageBucket: "stallholder-bd4f7.appspot.com",
-  messagingSenderId: "1080578618023",
-  appId: "1:1080578618023:web:42be3d22e7a3a715d2a182"
-};
 
 const interimConfig = {
   apiKey: "AIzaSyDdSIB_jc2JL8Ss5LMBtEeHhTJrU6XmVZo",
@@ -37,15 +28,11 @@ const rentmobileConfig = {
   measurementId: "G-CEH1SRNX30"
 };
 
-// Initialize Firebase for both projects
-const stallholderApp = initializeApp(stallholderConfig, "stallholderApp");
+
 const interimApp = initializeApp(interimConfig, "interimApp");
 const rentmobileApp = initializeApp(rentmobileConfig, "rentmobileApp");
 
-// Get Firestore and Auth for both apps
-const stallholderDb = getFirestore(stallholderApp);
-const stallholderAuth = getAuth(stallholderApp);
-const stallholderStorage = getStorage(stallholderApp);
+
 
 const interimDb = getFirestore(interimApp);
 const interimAuth = getAuth(interimApp);
@@ -58,9 +45,6 @@ const rentmobileAnalytics = getAnalytics(rentmobileApp);
 
 // Export the instances
 export {
-  stallholderDb,
-  stallholderAuth,
-  stallholderStorage,
   interimDb,
   interimAuth,
   interimStorage,

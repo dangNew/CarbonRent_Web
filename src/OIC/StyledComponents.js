@@ -1,4 +1,3 @@
-// StyledComponents.js
 import styled from 'styled-components';
 
 // Sidebar component

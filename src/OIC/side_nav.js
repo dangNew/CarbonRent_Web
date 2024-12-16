@@ -32,18 +32,39 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
       <Link to="/profileoic" style={{ textDecoration: 'none' }}>
         <ProfileHeader isSidebarOpen={isSidebarOpen}>
           {loggedInUser && loggedInUser.Image ? (
-            <ProfileImage src={loggedInUser.Image} alt={`${loggedInUser.firstName} ${loggedInUser.lastName}`} />
+            <ProfileImage
+              src={loggedInUser.Image}
+              alt={`${loggedInUser.firstName} ${loggedInUser.lastName}`}
+            />
           ) : (
             <FaUserCircle className="profile-icon" />
           )}
-          <span className="profile-name">{loggedInUser ? `${loggedInUser.firstName} ${loggedInUser.lastName}` : 'Guest'}</span>
-          
-          <span className="profile-email" style={{ fontSize: '0.9rem', color: '#6c757d', display: isSidebarOpen ? 'block' : 'none' }}>
-            {loggedInUser ? loggedInUser.email : ''}
+          <span className="profile-name">
+            {loggedInUser
+              ? `${loggedInUser.firstName} ${loggedInUser.lastName}`
+              : "Guest"}
           </span>
-          
-          <span className="profile-position" style={{ fontSize: '0.9rem', color: '#6c757d', display: isSidebarOpen ? 'block' : 'none' }}>
-            {loggedInUser ? loggedInUser.position : ''}
+
+          <span
+            className="profile-email"
+            style={{
+              fontSize: "0.9rem",
+              color: "#6c757d",
+              display: isSidebarOpen ? "block" : "none",
+            }}
+          >
+            {loggedInUser ? loggedInUser.email : ""}
+          </span>
+
+          <span
+            className="profile-position"
+            style={{
+              fontSize: "0.9rem",
+              color: "#6c757d",
+              display: isSidebarOpen ? "block" : "none",
+            }}
+          >
+            {loggedInUser ? loggedInUser.position : ""}
           </span>
         </ProfileHeader>
       </Link>
@@ -54,7 +75,7 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
       </SearchBarContainer>
 
       <SidebarMenu>
-        <Link to="/oic_dashboard" style={{ textDecoration: 'none' }}>
+        <Link to="/oic_dashboard" style={{ textDecoration: "none" }}>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
             <FontAwesomeIcon icon={faHome} className="icon" />
             <span>Dashboard</span>
@@ -64,16 +85,24 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
         {/* Vendors Section */}
         <SidebarItem onClick={handleVendorToggle} isSidebarOpen={isSidebarOpen}>
           <FontAwesomeIcon icon={faUsers} className="icon" />
-          <span style={{ marginLeft: '8px' }}>Vendors</span>
-          <FontAwesomeIcon icon={faChevronDown} className="dropdown-icon" style={{ marginLeft: 'auto' }} />
+          <span style={{ marginLeft: "8px" }}>Vendors</span>
+          <FontAwesomeIcon
+            icon={faChevronDown}
+            className="dropdown-icon"
+            style={{ marginLeft: "auto" }}
+          />
         </SidebarItem>
         {openVendors && (
-          <SidebarMenu style={{ paddingLeft: '32px' }}>
-            <Link to="/vendors" style={{ textDecoration: 'none' }}>
-              <SidebarItem isSidebarOpen={isSidebarOpen}>List of Vendors</SidebarItem>
+          <SidebarMenu style={{ paddingLeft: "32px" }}>
+            <Link to="/vendors" style={{ textDecoration: "none" }}>
+              <SidebarItem isSidebarOpen={isSidebarOpen}>
+                List of Vendors
+              </SidebarItem>
             </Link>
-            <Link to="/vendor-verification" style={{ textDecoration: 'none' }}>
-              <SidebarItem isSidebarOpen={isSidebarOpen}>Vendor Verification</SidebarItem>
+            <Link to="/vendor-verification" style={{ textDecoration: "none" }}>
+              <SidebarItem isSidebarOpen={isSidebarOpen}>
+                Vendor Verification
+              </SidebarItem>
             </Link>
             {/* <Link to="/declined-vendors" style={{ textDecoration: 'none' }}>
               <SidebarItem isSidebarOpen={isSidebarOpen}>Declined Vendors</SidebarItem>
@@ -82,7 +111,7 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
         )}
 
         {/* Stalls Section */}
-        <Link to="/stalls" style={{ textDecoration: 'none' }}>
+        <Link to="/oic-listofstalls" style={{ textDecoration: 'none' }}>
               <SidebarItem isSidebarOpen={isSidebarOpen}>
               <FontAwesomeIcon icon={faStore} className="icon" />
               <span>List of Stalls</span>
@@ -90,7 +119,7 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
             </Link>
 
         {/* Violations Section */}
-        <Link to="/violations" style={{ textDecoration: 'none' }}>
+        <Link to="/violations" style={{ textDecoration: "none" }}>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
             <FontAwesomeIcon icon={faGavel} className="icon" />
             <span>Violations</span>
@@ -114,7 +143,7 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
         </Link> */}
 
         {/* Settings Section */}
-        <Link to="/settings" style={{ textDecoration: 'none' }}>
+        <Link to="/settings" style={{ textDecoration: "none" }}>
           <SidebarItem isSidebarOpen={isSidebarOpen}>
             <FontAwesomeIcon icon={faCog} className="icon" />
             <span>Settings</span>
@@ -128,9 +157,7 @@ const SideNav = ({ isSidebarOpen, loggedInUser }) => {
                 </SidebarItem>
       </SidebarMenu>
 
-      <SidebarFooter>
-        {/* Add footer content if needed */}
-      </SidebarFooter>
+      <SidebarFooter>{/* Add footer content if needed */}</SidebarFooter>
     </Sidebar>
   );
 };

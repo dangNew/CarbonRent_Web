@@ -35,7 +35,11 @@ const AppBar = styled.div`
   background-color: #188423;
   color: white;
   font-size: 22px;
+<<<<<<< HEAD
   font-family: 'Inter', sans-serif;
+=======
+  font-family: "Inter", sans-serif;
+>>>>>>> b68990dff4d3155d3999ab0f7238fdeae1245a31
   font-weight: bold;
 `;
 
@@ -299,9 +303,11 @@ const ViolationReportsPage = () => {
             <FilterDropdown
               options={[
                 { label: 'All', value: 'All' },
-                { label: 'Paid', value: 'Paid' },
-                { label: 'Pending', value: 'Pending' }
+                { label: 'Paid', value: 'paid' },
+                { label: 'Pending', value: 'Pending' },
+                { label: 'Settled', value: 'Settled' }
               ]}
+
               onFilterChange={handleFilterStatus}
               label="Status"
               iconColor="#f44336"

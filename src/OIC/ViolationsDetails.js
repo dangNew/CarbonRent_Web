@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Button } from '@mui/material';
-import { FaEnvelope, FaBars, FaTimes, FaSearchPlus, FaCheckCircle } from 'react-icons/fa';
+import { FaEnvelope, FaBars, FaTimes, FaSearchPlus } from 'react-icons/fa';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { rentmobileDb } from '../components/firebase.config'; // Ensure you have this configuration
 import SideNav from './side_nav'; // Import the SideNav component
@@ -52,7 +52,7 @@ const ToggleButton = styled.div`
 
 const FormContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px; /* Space between the containers */
   margin-top: 1rem;
   padding: 0.5rem;
@@ -162,14 +162,6 @@ const ActionButtons = styled.div`
         cursor: not-allowed;
       }
     }
-
-    &.settled {
-      background-color: #28a745;
-
-      &:hover {
-        background-color: #218838;
-      }
-    }
   }
 `;
 
@@ -260,13 +252,12 @@ const ImageModal = styled.div`
 const ViolationDetails = () => {
   const { vendorId } = useParams();
   const [violations, setViolations] = useState([]);
-  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
-  const [isPending, setIsPending] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -312,7 +303,6 @@ const ViolationDetails = () => {
       });
 
       setViolations(data);
-      setIsPending(data.some(violation => violation.status === 'Pending'));
     };
 
     fetchViolationDetails();
@@ -337,7 +327,7 @@ const ViolationDetails = () => {
     };
 
     if (violations.find(v => v.id === violationId)?.warning === 'Final Offense') {
-      updateData.message = message;
+      updateData.message = messages[violationId];
     } else {
       updateData.violationPayment = violations.find(v => v.id === violationId)?.violationPayment;
     }
@@ -351,15 +341,6 @@ const ViolationDetails = () => {
     const docRef = doc(rentmobileDb, 'Market_violations', violationId);
     await updateDoc(docRef, {
       status: 'Declined', // Update status to Declined
-    });
-    setShowModal(true); // Show the modal
-    fetchViolationDetails(); // Re-fetch the violation details to reflect the changes
-  };
-
-  const handleSettled = async (violationId) => {
-    const docRef = doc(rentmobileDb, 'Market_violations', violationId);
-    await updateDoc(docRef, {
-      status: 'Settled', // Update status to Settled
     });
     setShowModal(true); // Show the modal
     fetchViolationDetails(); // Re-fetch the violation details to reflect the changes
@@ -424,12 +405,13 @@ const ViolationDetails = () => {
     });
 
     setViolations(data);
-    setIsPending(data.some(violation => violation.status === 'Pending'));
   };
 
   if (violations.length === 0) {
     return <div>Loading...</div>;
   }
+
+  const filteredViolations = violations.filter(violation => violation.status === 'To be Reviewed');
 
   return (
     <DashboardContainer>
@@ -449,7 +431,7 @@ const ViolationDetails = () => {
         </AppBar>
 
         <FormContainer>
-          {violations.map((violation) => (
+          {filteredViolations.map((violation) => (
             <DetailsContainer key={violation.id}>
               <DetailsHeader>
                 <h2>{violation.warning}</h2>
@@ -467,7 +449,6 @@ const ViolationDetails = () => {
                     <p><strong>Penalty Months:</strong> {violation.penaltyMonths}</p>
                   </>
                 )}
-                {violation.status === 'Pending' && <p style={{ color: 'red' }}><strong>Status:</strong> Pending</p>}
                 {violation.status === 'Declined' && <p style={{ color: 'red' }}><strong>Status:</strong> Declined</p>}
                 {violation.status === 'Settled' && <p style={{ color: 'green' }}><strong>Status:</strong> Settled</p>}
                 {violation.imageUrls.map((imageUrl, index) => (
@@ -483,23 +464,18 @@ const ViolationDetails = () => {
                 {violation.warning === 'Final Offense' && (
                   <textarea
                     placeholder="Enter your message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={messages[violation.id] || ''}
+                    onChange={(e) => setMessages({ ...messages, [violation.id]: e.target.value })}
                   />
                 )}
               </DetailsContent>
               <ActionButtons>
-                <button onClick={() => handleSendNotice(violation.id)} disabled={violation.status === 'Pending' || violation.status === 'Declined' || violation.status === 'Settled'}>
+                <button onClick={() => handleSendNotice(violation.id)} disabled={violation.status === 'Declined' || violation.status === 'Settled'}>
                   <FaEnvelope style={{ marginRight: '5px' }} /> Send Notice
                 </button>
-                <button className="decline" onClick={() => handleDecline(violation.id)} disabled={violation.status === 'Pending' || violation.status === 'Declined' || violation.status === 'Settled'}>
+                <button className="decline" onClick={() => handleDecline(violation.id)} disabled={violation.status === 'Declined' || violation.status === 'Settled'}>
                   <FaTimes style={{ marginRight: '5px' }} /> Decline
                 </button>
-                {violation.status === 'Pending' && violation.warning === 'Final Offense' && (
-                  <button className="settled" onClick={() => handleSettled(violation.id)}>
-                    <FaCheckCircle style={{ marginRight: '5px' }} /> Settled
-                  </button>
-                )}
               </ActionButtons>
             </DetailsContainer>
           ))}
